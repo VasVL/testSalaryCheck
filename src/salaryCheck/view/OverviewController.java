@@ -3,8 +3,10 @@ package salaryCheck.view;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
@@ -75,6 +77,41 @@ public class OverviewController implements Initializable {
                 )
             );
 
+        //storeTableView.setEditable(true);
+        //employeeTableColumn.setEditable(true);
+        //allFeeTableColumn.setEditable(true);
+
+        /*
+        * Устанавливаем возможность менять значения в таблице
+        * Дату изменять нельзя
+        * Для сотрудников используем ComboBox, потому что их ограниченное количество
+        * todo расходы
+        * */
+
+        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(mainApp.getEmployees()));
+        employeeTableColumn.setOnEditCommit(editEvent ->
+                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
+                setEmployee(editEvent.getNewValue()));
+
+        allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        allFeeTableColumn.setOnEditCommit(editEvent ->
+                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
+                setAllFee(editEvent.getNewValue()));
+
+        nonCashTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        nonCashTableColumn.setOnEditCommit(editEvent ->
+                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
+                        setNonCash(editEvent.getNewValue()));
+
+        cashTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        cashTableColumn.setOnEditCommit(editEvent ->
+                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
+                        setCash(editEvent.getNewValue()));
+
+        cashBalanceTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        cashBalanceTableColumn.setOnEditCommit(editEvent ->
+                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
+                        setCashBalance(editEvent.getNewValue()));
     }
 
     /**

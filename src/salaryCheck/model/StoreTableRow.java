@@ -24,7 +24,7 @@ public class StoreTableRow {
      */
     public StoreTableRow() {
         this(LocalDate.now(),
-                new Employee("Неизвестный сотрудник"),
+                new Employee(""),
                 0, 0, 0, 0,
                 FXCollections.observableArrayList());
     }
