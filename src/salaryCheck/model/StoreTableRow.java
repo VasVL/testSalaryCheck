@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Класс для записи значений в таблицу
@@ -17,7 +18,8 @@ public class StoreTableRow {
     private IntegerProperty nonCash;
     private IntegerProperty cash;
     private IntegerProperty cashBalance;
-    private ObjectProperty<ObservableList<Expense>> expenses;
+    //private ObjectProperty<ObservableList<Expense>> expenses;
+    private ListProperty<Expense> expenses;
 
     /**
     * Конструктор по умолчанию.
@@ -52,7 +54,8 @@ public class StoreTableRow {
         this.nonCash = new SimpleIntegerProperty(nonCash);
         this.cash = new SimpleIntegerProperty(cash);
         this.cashBalance = new SimpleIntegerProperty(cashBalance);
-        this.expenses = new SimpleObjectProperty<>(expenses);
+        //this.expenses = new SimpleObjectProperty<>(expenses);
+        this.expenses = new SimpleListProperty<>(expenses);
     }
 
     public LocalDate getDate() {
@@ -131,7 +134,10 @@ public class StoreTableRow {
         return expenses.get();
     }
 
-    public ObjectProperty<ObservableList<Expense>> expensesProperty() {
+    /*public ObjectProperty<ObservableList<Expense>> expensesProperty() {
+        return expenses;
+    }*/
+    public ListProperty<Expense> expensesProperty() {
         return expenses;
     }
 
@@ -141,5 +147,17 @@ public class StoreTableRow {
 
     public void addExpense(Expense expense){
         this.getExpenses().add(expense);
+    }
+
+    public void clearRow(List<StoreTableRow> storeTableRowList, int rowNumber){
+        setEmployee(new Employee(""));
+        setAllFee(0);
+        setNonCash(0);
+        setCash(0);
+        // TODO убрать new ... и добавить обнуление листа
+        ListProperty<Expense> emptyExpensesList = new SimpleListProperty<>();
+        //emptyExpensesList.add(new Expense(0, ""));
+        storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);
+        setCashBalance(0);
     }
 }

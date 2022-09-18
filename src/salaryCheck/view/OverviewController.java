@@ -73,7 +73,7 @@ public class OverviewController implements Initializable {
                 getExpenses().
                 stream().
                 map(Expense::toString).
-                reduce((s1, s2) -> s1 + ";\n" + s2).get()
+                reduce((s1, s2) -> s1 + ";\n" + s2).orElse("")
                 )
             );
 
@@ -124,5 +124,15 @@ public class OverviewController implements Initializable {
 
         // Добавление в таблицу данных из наблюдаемого списка
         storeTableView.setItems(mainApp.getStoreTable());
+    }
+
+    @FXML
+    private void clearRow(){
+        int selectedRow = storeTableView.getSelectionModel().getSelectedIndex();
+        // Удалять строку целиком я не буду, потому что все даты должны оставаться в таблице
+        //storeTableView.getItems().remove(selectedRow);
+        if(selectedRow >= 0) {
+            storeTableView.getItems().get(selectedRow).clearRow(mainApp.getStoreTable(), selectedRow);
+        }
     }
 }
