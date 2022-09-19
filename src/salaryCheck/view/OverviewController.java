@@ -1,17 +1,24 @@
 package salaryCheck.view;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
 import salaryCheck.model.StoreTableRow;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -112,6 +119,38 @@ public class OverviewController implements Initializable {
         cashBalanceTableColumn.setOnEditCommit(editEvent ->
                 ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
                         setCashBalance(editEvent.getNewValue()));
+
+        expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
+            @Override
+            public void handle(TableColumn.CellEditEvent<StoreTableRow, String> storeTableRowStringCellEditEvent) {
+                int indexRow = storeTableRowStringCellEditEvent.getTablePosition().getRow();
+                showExpensesEditDialog(indexRow);
+            }
+        });
+    }
+
+    private void showExpensesEditDialog(int indexRow){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
+        try {
+            Parent root = loader.load();
+            ExpensesEditDialogController expensesEditController = loader.getController();
+            // todo
+            // вызвать что ли метод какой
+
+            Stage stage = new Stage();
+            stage.setTitle("Внесение расходов");
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.initOwner(mainApp.getPrimaryStage());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.show();
+
+            expensesEditController.setDialogStage(stage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            //System.out.println("O-la-la");
+        }
     }
 
     /**

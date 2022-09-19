@@ -141,7 +141,7 @@ public class StoreTableRow {
         return expenses;
     }
 
-    public void setExpenses(ObservableList<Expense> expenses) {
+    public void setExpenses(ListProperty<Expense> expenses) {
         this.expenses.set(expenses);
     }
 
@@ -154,7 +154,7 @@ public class StoreTableRow {
         setAllFee(0);
         setNonCash(0);
         setCash(0);
-        // TODO убрать new ... и добавить обнуление листа
+        // TODO убрать new ... и добавить обнуление листа / строка чистится на сразу
         ListProperty<Expense> emptyExpensesList = new SimpleListProperty<>();
         //emptyExpensesList.add(new Expense(0, ""));
         storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);

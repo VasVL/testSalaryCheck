@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
@@ -17,6 +16,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 public class MainApp extends Application {
+
+    Stage primaryStage;
 
     private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
     private ObservableList<Employee> employees = FXCollections.observableArrayList(new Employee("Васян"), new Employee("Мистер Пропер"));
@@ -53,15 +54,20 @@ public class MainApp extends Application {
             OverviewController controller = loader.getController();
             controller.setMainApp(this);
 
-            Scene scene = new Scene(root, Color.BLACK);
-            primaryStage.setTitle("Штуки-Дрюки");
-            primaryStage.setScene(scene);
-            primaryStage.show();
+            Scene scene = new Scene(root);
+            this.primaryStage = primaryStage;
+            this.primaryStage.setTitle("Штуки-Дрюки");
+            this.primaryStage.setScene(scene);
+            this.primaryStage.show();
         }
         catch (IOException e) {
             System.out.println("Не могу загрузить fxml-файл");
             e.printStackTrace();
         }
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     public static void main(String[] args) {
