@@ -2,15 +2,10 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salaryCheck.view.ExpensesEditDialogController">
@@ -36,27 +31,6 @@
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                     </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <TextField fx:id="amountTextField" promptText="Введите сумму..." />
-                        <HBox GridPane.columnIndex="1">
-                           <children>
-                              <ChoiceBox maxWidth="150.0" prefWidth="150.0" />
-                           </children>
-                        </HBox>
-                        <ImageView accessibleRole="BUTTON" accessibleText="Изменить" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2">
-                           <image>
-                              <Image url="@../sources/images/pencil.png" />
-                           </image>
-                        </ImageView>
-                        <ImageView fx:id="minusImageView" accessibleRole="BUTTON" accessibleText="Удалить" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3">
-                           <image>
-                              <Image url="@../sources/images/minus.png" />
-                           </image>
-                        </ImageView>
-                     </children>
                   </GridPane>
                   <HBox spacing="15.0">
                      <children>

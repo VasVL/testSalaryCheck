@@ -1,7 +1,6 @@
 package salaryCheck.view;
 
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,7 +52,7 @@ public class OverviewController implements Initializable {
 
 
     // Ссылка на данные приложения
-    public AppData appData = AppData.getInstance();
+    public AppData appData;
     public MainApp mainApp = new MainApp();
 
     /**
@@ -62,8 +61,7 @@ public class OverviewController implements Initializable {
      */
     public OverviewController() {
         // Добавление в таблицу данные из наблюдаемого списка
-        //storeTableView = new TableView<>();
-
+        appData = AppData.getInstance();
     }
 
 
@@ -80,17 +78,26 @@ public class OverviewController implements Initializable {
         nonCashTableColumn.setCellValueFactory(cellData -> cellData.getValue().nonCashProperty().asObject());
         cashTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashProperty().asObject());
         cashBalanceTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashBalanceProperty().asObject());
-        // Эту дрянь я сделал потому что не смог нормально переопределить toString()
-        // (хотя есть подозрение, что можно было просто сделать класс-обёртку над списком Expense'ов)
-        expensesTableColumn.setCellValueFactory(cellData -> /*cellData.getValue().expensesProperty()*/
-                new SimpleStringProperty(
-                cellData.getValue().
-                getExpenses().
-                stream().
-                map(Expense::toString).
-                reduce((s1, s2) -> s1 + ";\n" + s2).orElse("")
-                )
-            );
+        // todo
+        // Поменял на Bindings.createStringBinding, но это выглядит как костыль, надо использовать интерфейс Observable
+        expensesTableColumn.setCellValueFactory(cellData ->
+                Bindings.createStringBinding(
+                        () ->
+                        cellData.getValue().
+                        getExpenses().
+                        stream().
+                        map(Expense::toString).
+                        reduce((s1, s2) -> s1 + ";\n" + s2).orElse(""),
+                cellData.getValue().expensesProperty())
+                /*cellData -> cellData.getValue().expensesProperty().asString()*/
+                /*new SimpleStringProperty(
+                    cellData.getValue().
+                    getExpenses().
+                    stream().
+                    map(Expense::toString).
+                    reduce((s1, s2) -> s1 + ";\n" + s2).orElse("")
+                )*/
+        );
 
         //storeTableView.setEditable(true);
         //employeeTableColumn.setEditable(true);
@@ -100,7 +107,7 @@ public class OverviewController implements Initializable {
         * Устанавливаем возможность менять значения в таблице
         * Дату изменять нельзя
         * Для сотрудников используем ComboBox, потому что их ограниченное количество
-        * todo расходы
+        *
         * */
 
         employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees()));
@@ -130,11 +137,13 @@ public class OverviewController implements Initializable {
 
         expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
             @Override
-            public void handle(TableColumn.CellEditEvent<StoreTableRow, String> storeTableRowStringCellEditEvent) {
-                int indexRow = storeTableRowStringCellEditEvent.getTablePosition().getRow();
+            public void handle(TableColumn.CellEditEvent<StoreTableRow, String> editEvent) {
+                int indexRow = editEvent.getTablePosition().getRow();
                 showExpensesEditDialog(indexRow);
             }
         });
+
+        // todo onEditCommit() или onEditCancel() обновлять информацию в tableView
     }
 
     private void showExpensesEditDialog(int indexRow){
@@ -144,7 +153,6 @@ public class OverviewController implements Initializable {
             ExpensesEditDialogController expensesEditController = loader.getController();
             // todo
             // вызвать что ли метод какой
-            //expensesEditController.setMainApp(mainApp);
             expensesEditController.setRowIndex(indexRow);
 
             Stage stage = new Stage();

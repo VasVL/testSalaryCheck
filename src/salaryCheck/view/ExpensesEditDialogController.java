@@ -1,6 +1,5 @@
 package salaryCheck.view;
 
-import javafx.beans.property.ListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,9 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import org.w3c.dom.Text;
-import salaryCheck.MainApp;
 import salaryCheck.model.AppData;
 import salaryCheck.model.Expense;
 
@@ -28,13 +26,8 @@ public class ExpensesEditDialogController implements Initializable {
 
     private Stage dialogStage;
 
-    private ObservableList<Expense> expensesList;
-
     @FXML
     private GridPane expensesGridPane;
-
-    @FXML
-    private ImageView minusImageView;
 
     public ExpensesEditDialogController() {
         appData = AppData.getInstance();
@@ -43,30 +36,16 @@ public class ExpensesEditDialogController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        /*
-        * todo сделать mainapp синглтоном (или вынести все листы в отдельный класс)
-        * */
-        fillGridPane();
     }
 
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
-    public void setExpensesList(ObservableList<Expense> expensesList) {
-        this.expensesList = expensesList;
-    }
-
-    public ObservableList<Expense> getExpensesList() {
-        return expensesList;
-    }
-
     public void setRowIndex(int rowIndex) {
-        this.rowIndex = rowIndex;
-    }
 
-    public int getRowIndex() {
-        return rowIndex;
+        this.rowIndex = rowIndex;
+        fillGridPane();
     }
 
     private void fillGridPane(){
@@ -92,6 +71,8 @@ public class ExpensesEditDialogController implements Initializable {
 
     @FXML
     public void addGridRow(){
+        // todo возможно лучше будет сделать так: добавить здесь прямо при создании changeListener'ы ко всем элементам,
+        //  которые будут перезаписывать определённые внутри класса глобальные переменные, типа списка расходов
         int rowsNumber = expensesGridPane.getRowCount();
         int column = 0;
 
@@ -99,9 +80,18 @@ public class ExpensesEditDialogController implements Initializable {
         textField.setPromptText("Введите сумму...");
         expensesGridPane.add(textField, column++, rowsNumber);
 
-        //HBox hBox = new HBox();
-
-        expensesGridPane.add(new ChoiceBox<Expense>(), column++, rowsNumber);// todo HBox
+        ObservableList<ChoiceBox<String>> choiceBoxesList = FXCollections.observableArrayList();
+        ChoiceBox<String> firstChoiceBox= new ChoiceBox<>(appData.getExpensePurposes());
+        HBox hBox = new HBox();
+        //for(ChoiceBox<Expense> choiceBox : choiceBoxesList) {
+        //    hBox.getChildren().add(choiceBox);
+        //}
+        choiceBoxesList.add(firstChoiceBox);
+        hBox.getChildren().addAll(choiceBoxesList);
+        TextField purposeTextField = new TextField();
+        hBox.getChildren().add(purposeTextField);
+        HBox.setHgrow(purposeTextField, Priority.ALWAYS);
+        expensesGridPane.add(/*new ChoiceBox<Expense>()*/hBox, column++, rowsNumber);// todo HBox
 
 
         expensesGridPane.add(new ImageView("salaryCheck\\sources\\images\\pencil.png"), column++, rowsNumber);
@@ -121,8 +111,6 @@ public class ExpensesEditDialogController implements Initializable {
     @FXML
     public void removeGridRow(int rowNumber){
         ObservableList<Node> children = expensesGridPane.getChildren();
-        //children.remove(expensesGridPane.getRowCount()* expensesGridPane.getColumnCount() - 3,
-        //        expensesGridPane.getRowCount()* expensesGridPane.getColumnCount() + 1);
         Iterator<Node> iter = children.iterator();
         while(iter.hasNext()){
             Node child = iter.next();
@@ -141,32 +129,47 @@ public class ExpensesEditDialogController implements Initializable {
         return true;
     }
 
+    // todo здесь вставить проверку на null
     @FXML
     public void handleApply(){
 
         appData.getStoreTable().get(rowIndex).getExpenses().clear();
 
-        expensesList = FXCollections.observableArrayList();
         ObservableList<Node> children = expensesGridPane.getChildren();
+        Expense tempExpense = new Expense();
 
         for(Node child : children){
             Integer columnIndex = GridPane.getColumnIndex(child);
-            if(columnIndex != null && columnIndex == 0){
-                String inputString = ((TextField)child).getText();
-                int amount = Integer.parseInt(inputString);
-                if(validateAmount()) {
-                    Expense expense = new Expense();
-                    expense.setAmount(amount);
-                    expense.setPurpose("Буквально ни на что, господи боже");
+            if(columnIndex != null){
+                String inputString = "";
+                // 0 колонка - сумма расхода
+                if(columnIndex == 0) {
+                    inputString = ((TextField) child).getText();
+                    int amount = Integer.parseInt(inputString);
+                    if (validateAmount()) {
+                        tempExpense.setAmount(amount);
+                    }
+                }
+                // 1 колонка - HBox с расходом, состоит из листа choiceBox'ов и одного textField'а
+                else if(columnIndex == 1){
+                    ObservableList<Node> hBoxChildren = ((HBox)child).getChildren();
+                    StringBuilder inputStringBuilder = new StringBuilder("");
+                    for(Node hBoxChild : hBoxChildren){
+                        if(hBoxChild instanceof ChoiceBox<?>){
+                            inputStringBuilder.append(((ChoiceBox<?>) hBoxChild).getValue());
+                        } else if(hBoxChild instanceof TextField){
+                            inputStringBuilder.append(((TextField)hBoxChild).getText());
+                        }
+                    }
+                    inputString = inputStringBuilder.toString();
+                    tempExpense.setPurpose(inputString);
 
-                    expensesList.add(expense);
+                    appData.getStoreTable().get(rowIndex).addExpense(tempExpense);
+                    tempExpense = new Expense();
                 }
             }
         }
-
-        for(Expense expense : expensesList){
-            appData.getStoreTable().get(rowIndex).addExpense(expense);
-        }
+        System.out.println();
     }
 
     @FXML

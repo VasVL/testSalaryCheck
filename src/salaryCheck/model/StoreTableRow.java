@@ -155,14 +155,11 @@ public class StoreTableRow {
         return expenses.get();
     }
 
-    /*public ObjectProperty<ObservableList<Expense>> expensesProperty() {
-        return expenses;
-    }*/
     public ListProperty<Expense> expensesProperty() {
         return expenses;
     }
 
-    public void setExpenses(ListProperty<Expense> expenses) {
+    public void setExpenses(ObservableList<Expense> expenses) {
         this.expenses.set(expenses);
     }
 
@@ -180,9 +177,7 @@ public class StoreTableRow {
         setAllFee(0);
         setNonCash(0);
         setCash(0);
-        // TODO убрать new ... и добавить обнуление листа / строка чистится на сразу
-        ListProperty<Expense> emptyExpensesList = new SimpleListProperty<>();
-        //emptyExpensesList.add(new Expense(0, ""));
+        ObservableList<Expense> emptyExpensesList = FXCollections.observableArrayList();
         storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);
         setCashBalance(0);
     }

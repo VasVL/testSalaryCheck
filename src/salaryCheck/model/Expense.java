@@ -6,6 +6,8 @@ public class Expense {
     private String purpose;
 
     public Expense() {
+        amount = Integer.valueOf(0);
+        purpose = "";
     }
 
     public Expense(Integer amount, String purpose) {
