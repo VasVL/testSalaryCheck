@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import salaryCheck.model.AppData;
 import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
 import salaryCheck.model.StoreTableRow;
@@ -19,13 +20,15 @@ public class MainApp extends Application {
 
     Stage primaryStage;
 
-    private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
-    private ObservableList<Employee> employees = FXCollections.observableArrayList(new Employee("Васян"), new Employee("Мистер Пропер"));
+    private AppData appData;
+
+    //private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
+    //private ObservableList<Employee> employees = FXCollections.observableArrayList(new Employee("Васян"), new Employee("Мистер Пропер"));
 
 
     public MainApp() {
         //Для начала сунем всё сюдой
-        for(int i = 0; i < 30; i++){
+        /*for(int i = 0; i < 30; i++){
             StoreTableRow storeTableRow = new StoreTableRow();
             storeTableRow.addExpense(new Expense(100, "хоз нужды"));
             storeTableRow.addExpense(new Expense(100, "всяка дрянь"));
@@ -33,13 +36,13 @@ public class MainApp extends Application {
             //storeTableRow.addExpense(new Expense(100, "всяка дрянь"));
             storeTableRow.setDate(LocalDate.now().minusDays(i));
             storeTable.add(storeTableRow);
-        }
+        }*/
     }
 
-    public ObservableList<StoreTableRow> getStoreTable() {
+   /* public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;
     }
-    public ObservableList<Employee> getEmployees() { return employees; }
+    public ObservableList<Employee> getEmployees() { return employees; }*/
 
     @Override
     public void start(Stage primaryStage) {
@@ -52,6 +55,8 @@ public class MainApp extends Application {
 
             // Даём контроллеру доступ к главному приложению.
             OverviewController controller = loader.getController();
+            // todo setAppData()
+            //appData = AppData.getInstance();
             controller.setMainApp(this);
 
             Scene scene = new Scene(root);

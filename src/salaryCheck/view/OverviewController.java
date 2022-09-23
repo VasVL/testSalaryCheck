@@ -1,5 +1,6 @@
 package salaryCheck.view;
 
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
+import salaryCheck.model.AppData;
 import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
 import salaryCheck.model.StoreTableRow;
@@ -50,7 +52,8 @@ public class OverviewController implements Initializable {
     private TableColumn<StoreTableRow, String/*ObservableList<Expense>*/> expensesTableColumn;
 
 
-    // Ссылка на главное приложение
+    // Ссылка на данные приложения
+    public AppData appData = AppData.getInstance();
     public MainApp mainApp = new MainApp();
 
     /**
@@ -58,11 +61,16 @@ public class OverviewController implements Initializable {
      * Конструктор вызывается раньше метода initialize().
      */
     public OverviewController() {
+        // Добавление в таблицу данные из наблюдаемого списка
+        //storeTableView = new TableView<>();
+
     }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        storeTableView.setItems(appData.getStoreTable());
 
         // Инициализация таблицы
         // Для всех кроме StringProperty нужно добавлять в конце .asObject() (либо переопределять toString())
@@ -95,7 +103,7 @@ public class OverviewController implements Initializable {
         * todo расходы
         * */
 
-        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(mainApp.getEmployees()));
+        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees()));
         employeeTableColumn.setOnEditCommit(editEvent ->
                 ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
                 setEmployee(editEvent.getNewValue()));
@@ -136,6 +144,8 @@ public class OverviewController implements Initializable {
             ExpensesEditDialogController expensesEditController = loader.getController();
             // todo
             // вызвать что ли метод какой
+            //expensesEditController.setMainApp(mainApp);
+            expensesEditController.setRowIndex(indexRow);
 
             Stage stage = new Stage();
             stage.setTitle("Внесение расходов");
@@ -156,13 +166,10 @@ public class OverviewController implements Initializable {
     /**
      * Вызывается главным приложением, которое даёт на себя ссылку.
      *
-     * @param mainApp
+     * //@param mainApp
      */
     public void setMainApp(MainApp mainApp){
         this.mainApp = mainApp;
-
-        // Добавление в таблицу данных из наблюдаемого списка
-        storeTableView.setItems(mainApp.getStoreTable());
     }
 
     @FXML
@@ -171,7 +178,7 @@ public class OverviewController implements Initializable {
         // Удалять строку целиком я не буду, потому что все даты должны оставаться в таблице
         //storeTableView.getItems().remove(selectedRow);
         if(selectedRow >= 0) {
-            storeTableView.getItems().get(selectedRow).clearRow(mainApp.getStoreTable(), selectedRow);
+            storeTableView.getItems().get(selectedRow).clearRow(appData.getStoreTable(), selectedRow);
         }
     }
 }

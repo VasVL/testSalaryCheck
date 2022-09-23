@@ -58,6 +58,9 @@ public class StoreTableRow {
         this.expenses = new SimpleListProperty<>(expenses);
     }
 
+
+
+
     public LocalDate getDate() {
         return date.get();
     }
@@ -69,6 +72,9 @@ public class StoreTableRow {
     public void setDate(LocalDate date) {
         this.date.set(date);
     }
+
+
+
 
     public Employee getEmployee() {
         return employee.get();
@@ -82,6 +88,9 @@ public class StoreTableRow {
         this.employee.set(employee);
     }
 
+
+
+
     public int getAllFee() {
         return allFee.get();
     }
@@ -93,6 +102,9 @@ public class StoreTableRow {
     public void setAllFee(int allFee) {
         this.allFee.set(allFee);
     }
+
+
+
 
     public int getNonCash() {
         return nonCash.get();
@@ -106,6 +118,9 @@ public class StoreTableRow {
         this.nonCash.set(nonCash);
     }
 
+
+
+
     public int getCash() {
         return cash.get();
     }
@@ -118,6 +133,9 @@ public class StoreTableRow {
         this.cash.set(cash);
     }
 
+
+
+
     public int getCashBalance() {
         return cashBalance.get();
     }
@@ -129,6 +147,9 @@ public class StoreTableRow {
     public void setCashBalance(int cashBalance) {
         this.cashBalance.set(cashBalance);
     }
+
+
+
 
     public ObservableList<Expense> getExpenses() {
         return expenses.get();
@@ -148,6 +169,11 @@ public class StoreTableRow {
     public void addExpense(Expense expense){
         this.getExpenses().add(expense);
     }
+
+    public void removeExpense(Expense expense){ this.getExpenses().remove(expense); }
+
+
+
 
     public void clearRow(List<StoreTableRow> storeTableRowList, int rowNumber){
         setEmployee(new Employee(""));

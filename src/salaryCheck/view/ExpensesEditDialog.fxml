@@ -18,6 +18,7 @@
       <HBox layoutX="494.0" layoutY="371.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
             <Button mnemonicParsing="false" onAction="#handleOK" prefWidth="73.0" text="ОК" />
+            <Button mnemonicParsing="false" onAction="#handleApply" text="Применить" />
             <Button mnemonicParsing="false" onAction="#handleClose" prefWidth="73.0" text="Отмена" />
          </children>
          <padding>
@@ -50,7 +51,7 @@
                               <Image url="@../sources/images/pencil.png" />
                            </image>
                         </ImageView>
-                        <ImageView accessibleRole="BUTTON" accessibleText="Удалить" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3">
+                        <ImageView fx:id="minusImageView" accessibleRole="BUTTON" accessibleText="Удалить" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3">
                            <image>
                               <Image url="@../sources/images/minus.png" />
                            </image>
@@ -60,7 +61,7 @@
                   <HBox spacing="15.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#addGridRow" prefWidth="96.0" text="Добавить..." />
-                        <Button mnemonicParsing="false" onAction="#removeGridRow" prefWidth="96.0" text="Удалить..." />
+                        <Button mnemonicParsing="false" onAction="#removeLastGridRow" prefWidth="96.0" text="Удалить..." />
                      </children>
                   </HBox>
                </children>
