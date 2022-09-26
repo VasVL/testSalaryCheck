@@ -27,6 +27,9 @@ import java.util.ResourceBundle;
 public class OverviewController implements Initializable {
 
     @FXML
+    private Label storeLabel;
+
+    @FXML
     private TableView<StoreTableRow> storeTableView;
 
     @FXML
@@ -67,6 +70,8 @@ public class OverviewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        storeLabel.setText(appData.getCurrentStore().toString());
 
         storeTableView.setItems(appData.getStoreTable());
 
@@ -142,8 +147,6 @@ public class OverviewController implements Initializable {
                 showExpensesEditDialog(indexRow);
             }
         });
-
-        // todo onEditCommit() или onEditCancel() обновлять информацию в tableView
     }
 
     private void showExpensesEditDialog(int indexRow){

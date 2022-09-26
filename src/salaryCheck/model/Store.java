@@ -17,4 +17,9 @@ public class Store {
         this.cleaningPay = cleaningPay;
         this.salesPercentage = salesPercentage;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

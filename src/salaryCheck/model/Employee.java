@@ -1,26 +1,50 @@
 package salaryCheck.model;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Employee {
 
     private String name;
-    private Map<LocalDate, Store> workDays;
+    private ObservableMap<LocalDate, Store> workDays;
 
     // Это не буду синхронизовать
     private IntegerProperty salaryBalance;
 
+    public Employee() {
+        this("");
+    }
+
     public Employee(String name) {
         this.name = name;
-        workDays = new HashMap<>();
+        workDays = FXCollections.observableHashMap();
     }
 
     public String getName() {
         return name;
+    }
+
+    public ObservableMap<LocalDate, Store> getWorkDays() {
+        return workDays;
+    }
+
+    public void addWorkDay(LocalDate date, Store store){
+        workDays.put(date, store);
+    }
+
+    public void removeWorkDay(LocalDate date){
+        workDays.remove(date);
+    }
+
+    public int getSalaryBalance() {
+        return salaryBalance.get();
+    }
+
+    public IntegerProperty salaryBalanceProperty() {
+        return salaryBalance;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class StoreTableRow {
     private IntegerProperty nonCash;
     private IntegerProperty cash;
     private IntegerProperty cashBalance;
-    //private ObjectProperty<ObservableList<Expense>> expenses;
+
     private ListProperty<Expense> expenses;
 
     /**
@@ -165,6 +165,12 @@ public class StoreTableRow {
 
     public void addExpense(Expense expense){
         this.getExpenses().add(expense);
+    }
+
+    public void addAllExpenses(ObservableList<Expense> expenses){
+        for(Expense expense : expenses){
+            this.addExpense(expense);
+        }
     }
 
     public void removeExpense(Expense expense){ this.getExpenses().remove(expense); }
