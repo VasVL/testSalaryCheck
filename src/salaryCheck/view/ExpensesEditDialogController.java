@@ -16,7 +16,6 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import salaryCheck.model.*;
 
-import javax.xml.stream.events.DTD;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Iterator;
@@ -119,7 +118,6 @@ public class ExpensesEditDialogController implements Initializable {
         ChoiceBox<Store> store = new ChoiceBox<>(appData.getStores());
         store.setValue(appData.getCurrentStore());
         ChoiceBox<LocalDate> date = new ChoiceBox<>();
-        // todo FXCollections.observableArrayList(employee.getValue().getWorkDays().keySet())
 
         employee.setOnAction(actionEvent -> date.setItems(FXCollections.observableArrayList(employee.getValue().getWorkDays().keySet())));
 

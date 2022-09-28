@@ -10,6 +10,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
@@ -25,9 +26,9 @@
             <items>
                   <Menu mnemonicParsing="false" text="Добавить...">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Магазин" />
-                        <MenuItem mnemonicParsing="false" text="Продавец" />
-                        <MenuItem mnemonicParsing="false" text="Статья расходов" />
+                      <MenuItem mnemonicParsing="false" onAction="#showStoreAddDialog" text="Магазин" />
+                        <MenuItem mnemonicParsing="false" onAction="#showEmployeeAddDialog" text="Продавец" />
+                        <MenuItem mnemonicParsing="false" onAction="#showExpenseTypeAddDialog" text="Статья расходов" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Выбрать...">
@@ -56,7 +57,10 @@
                   <MenuItem mnemonicParsing="false" text="Продавцы" />
                   <MenuItem mnemonicParsing="false" text="Статьи расходов" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Сохранить" />
+                  <MenuItem mnemonicParsing="false" text="Сохранить">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
               <MenuItem mnemonicParsing="false" text="Закрыть" />
             </items>
           </Menu>
@@ -102,7 +106,7 @@
             <Insets />
          </opaqueInsets>
       </HBox>
-      <Label fx:id="storeLabel" layoutX="54.0" layoutY="700.0" prefHeight="61.0" prefWidth="157.0" text="Магазин" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="54.0">
+      <Label fx:id="storeLabel" layoutX="54.0" layoutY="700.0" prefHeight="61.0" prefWidth="880.0" text="Магазин" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="54.0" AnchorPane.rightAnchor="266.0">
          <font>
             <Font size="40.0" />
          </font>

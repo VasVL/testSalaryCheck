@@ -147,32 +147,86 @@ public class OverviewController implements Initializable {
                 showExpensesEditDialog(indexRow);
             }
         });
+
+        // todo надо бы добавить в storeTableView какой Listener или типа того, чтоб значения в appData менялись
+
+
+        // Menu
+        //addStoreMenuItem.setOnAction(actionEvent -> showStoreEditDialog());
+    }
+
+    private Stage createDialog(FXMLLoader loader, String title) throws IOException {
+
+        Parent root = loader.load();
+
+        Stage stage = new Stage();
+        stage.setTitle("Внесение расходов");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.initOwner(mainApp.getPrimaryStage());
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.show();
+
+        return stage;
     }
 
     private void showExpensesEditDialog(int indexRow){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
         try {
-            Parent root = loader.load();
+            Stage stage = createDialog(loader, "Внесение расходов");
+
             ExpensesEditDialogController expensesEditController = loader.getController();
-            // todo
-            // вызвать что ли метод какой
-            expensesEditController.setRowIndex(indexRow);
-
-            Stage stage = new Stage();
-            stage.setTitle("Внесение расходов");
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.initOwner(mainApp.getPrimaryStage());
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.show();
-
             expensesEditController.setDialogStage(stage);
+            expensesEditController.setRowIndex(indexRow);
 
         } catch (IOException e) {
             e.printStackTrace();
             //System.out.println("O-la-la");
         }
     }
+
+    @FXML
+    private void showStoreAddDialog(){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("StoreAddDialog.fxml"));
+        try {
+            Stage stage = createDialog(loader, "Добавление магазина");
+
+            StoreAddDialogController storeAddController = loader.getController();
+            storeAddController.setDialogStage(stage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void showEmployeeAddDialog(){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeAddDialog.fxml"));
+        try {
+            Stage stage = createDialog(loader, "Добавление сотрудника");
+
+            EmployeeAddDialogController employeeAddController = loader.getController();
+            employeeAddController.setDialogStage(stage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void showExpenseTypeAddDialog(){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpenseTypeAddDialog.fxml"));
+        try {
+            Stage stage = createDialog(loader, "Добавление статьи расходов");
+
+            ExpenseTypeAddDialogController expenseTypeAddController = loader.getController();
+            expenseTypeAddController.setDialogStage(stage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Вызывается главным приложением, которое даёт на себя ссылку.
