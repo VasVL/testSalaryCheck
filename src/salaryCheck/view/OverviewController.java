@@ -28,6 +28,12 @@ public class OverviewController implements Initializable {
 
     @FXML
     private Label storeLabel;
+    @FXML
+    private MenuItem storesMenuItem;
+    @FXML
+    private MenuItem employeesMenuItem;
+    @FXML
+    private MenuItem expenseTypesMenuItem;
 
     @FXML
     private TableView<StoreTableRow> storeTableView;
@@ -152,7 +158,9 @@ public class OverviewController implements Initializable {
 
 
         // Menu
-        //addStoreMenuItem.setOnAction(actionEvent -> showStoreEditDialog());
+        storesMenuItem.setOnAction(event -> showListOverview(0));
+        employeesMenuItem.setOnAction(event -> showListOverview(1));
+        expenseTypesMenuItem.setOnAction(event -> showListOverview(2));
     }
 
     private Stage createDialog(FXMLLoader loader, String title) throws IOException {
@@ -160,7 +168,7 @@ public class OverviewController implements Initializable {
         Parent root = loader.load();
 
         Stage stage = new Stage();
-        stage.setTitle("Внесение расходов");
+        stage.setTitle(title);
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.initOwner(mainApp.getPrimaryStage());
@@ -221,6 +229,21 @@ public class OverviewController implements Initializable {
 
             ExpenseTypeAddDialogController expenseTypeAddController = loader.getController();
             expenseTypeAddController.setDialogStage(stage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void showListOverview(int startTab){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ListOverview.fxml"));
+        try {
+            Stage stage = createDialog(loader, "Список штук");
+
+            ListOverviewController listOverviewController = loader.getController();
+            listOverviewController.setDialogStage(stage);
+            listOverviewController.setStartTab(startTab);
 
         } catch (IOException e) {
             e.printStackTrace();

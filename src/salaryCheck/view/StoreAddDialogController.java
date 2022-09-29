@@ -2,7 +2,6 @@ package salaryCheck.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import salaryCheck.model.AppData;
@@ -38,6 +37,20 @@ public class StoreAddDialogController {
     private boolean handleApply(){
 
         tempStore.setName(nameTextField.getText());
+
+        for(Store store : appData.getStores()){
+            if(store.getName().equals(tempStore.getName())){
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.initOwner(dialogStage);
+                alert.setTitle("Ошибонька");
+                alert.setHeaderText("Магазин с таким названием уже есть");
+                alert.setContentText("Используйте другое название");
+
+                alert.showAndWait();
+                return false;
+            }
+        }
+
         try {
             tempStore.setShiftPay(Integer.parseInt(shiftPayTextField.getText()));
             tempStore.setCleaningPay(Integer.parseInt(cleaningPayTextField.getText()));
