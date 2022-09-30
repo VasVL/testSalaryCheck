@@ -138,6 +138,7 @@ public class ListOverviewController implements Initializable {
         Tab selectedTab = tabPane.getSelectionModel().selectedItemProperty().get();
         //todo здесь нужно помнить, что удалять целмком ничего не надо,
         // точнее нужно оставить то, что уже используется в таблице, но скрыть возможность использовать это в дальнейшем
+        // Возможно нужно будет сделать два списка для оних и тех же магазинов / сотрудников / расходов : актуальный и архив
         if(selectedTab.equals(storesTab)){
 
         } else if(selectedTab.equals(employeesTab)) {
@@ -150,10 +151,7 @@ public class ListOverviewController implements Initializable {
     @FXML
     private void handleOkButton(){
 
-        if(true) {
-
             dialogStage.close();
-        }
     }
 
     @FXML

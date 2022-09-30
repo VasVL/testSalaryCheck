@@ -19,7 +19,9 @@ import salaryCheck.model.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ExpensesEditDialogController implements Initializable {
 
@@ -119,7 +121,25 @@ public class ExpensesEditDialogController implements Initializable {
         store.setValue(appData.getCurrentStore());
         ChoiceBox<LocalDate> date = new ChoiceBox<>();
 
-        employee.setOnAction(actionEvent -> date.setItems(FXCollections.observableArrayList(employee.getValue().getWorkDays().keySet())));
+        // todo одинаковые лямбды надо вынести отдельно
+        store.setOnAction(actionEvent ->
+                date.setItems( FXCollections.observableArrayList(
+                        employee.getValue().getWorkDays().entrySet().stream().filter(entry ->
+                                entry.getValue().equals(store.getValue())
+                        ).map(Map.Entry::getKey).toList()
+                )));
+
+        employee.setOnAction( actionEvent ->
+                date.setItems( FXCollections.observableArrayList(
+                        employee.getValue().getWorkDays().entrySet().stream().filter(entry ->
+                                entry.getValue().equals(store.getValue())
+                        ).map(Map.Entry::getKey).toList()
+                )));
+
+
+        employee.setMinWidth(80);
+        store.setMinWidth(80);
+        date.setMinWidth(80);
 
         choiceBoxesList.add(employee);
         choiceBoxesList.add(store);

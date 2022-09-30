@@ -35,18 +35,39 @@ public class AppData {
         //Для начала сунем всё сюдой
         currentStore = stores.get(0);
         for(int i = 0; i < 30; i++){
-            StoreTableRow storeTableRow = new StoreTableRow();
-            // todo .get(0) там concurrent вылазит
-            storeTableRow.addExpense(new Expense(100, expenseTypes.get(2)));
-            storeTableRow.addExpense(new Expense(200, expenseTypes.get(1)));
-            storeTableRow.setDate(LocalDate.now().minusDays(i));
-            storeTableRow.setEmployee(employees.get(0));
-            employees.get(0).addWorkDay(LocalDate.now().minusDays(i), currentStore);
-            storeTable.add(storeTableRow);
+            StoreTableRow storeTableRow_1 = new StoreTableRow();
+            StoreTableRow storeTableRow_2 = new StoreTableRow();
+            StoreTableRow storeTableRow_3 = new StoreTableRow();
+
+            storeTableRow_1.addExpense(new Expense(100, expenseTypes.get(2)));
+            storeTableRow_1.addExpense(new Expense(200, expenseTypes.get(1)));
+            storeTableRow_1.setDate(LocalDate.now().minusDays(i));
+            storeTableRow_1.setEmployee(employees.get(0));
+
+            storeTableRow_2.addExpense(new Expense(300, expenseTypes.get(2)));
+            storeTableRow_2.addExpense(new Expense(200, expenseTypes.get(3)));
+            storeTableRow_2.setDate(LocalDate.now().minusDays(i));
+            storeTableRow_2.setEmployee(employees.get(1));
+
+            storeTableRow_3.addExpense(new Expense(300, expenseTypes.get(1)));
+            storeTableRow_3.setDate(LocalDate.now().minusDays(i));
+            int random = (int)(Math.random()*2);
+            storeTableRow_3.setEmployee(employees.get(random));
+
+            employees.get(0).addWorkDay(LocalDate.now().minusDays(i), stores.get(0));
+            employees.get(1).addWorkDay(LocalDate.now().minusDays(i), stores.get(1));
+            employees.get(random).addWorkDay(LocalDate.now().minusDays(i), stores.get(2));
+
+            stores.get(0).addStoreTableRow(storeTableRow_1);
+            stores.get(1).addStoreTableRow(storeTableRow_2);
+            stores.get(2).addStoreTableRow(storeTableRow_3);
+            //storeTable.add(storeTableRow_1);
         }
+
+        fillStoreTable();
     }
 
-    public static synchronized AppData getInstance(){
+    public static AppData getInstance(){
         if(instance == null){
             synchronized (AppData.class){
                 if(instance == null){
@@ -58,8 +79,28 @@ public class AppData {
         return instance;
     }
 
+    private void fillStoreTable(){
+
+        for(Store store : stores){
+            if(store.equals(currentStore)){
+                storeTable.clear();
+                storeTable.addAll(currentStore.getStoreTable());
+                return;
+            }
+        }
+    }
+
+    //private void clearStoreTable(){
+    //
+    //}
+
     public Store getCurrentStore() {
         return currentStore;
+    }
+
+    public void setCurrentStore(Store currentStore) {
+        this.currentStore = currentStore;
+        fillStoreTable();
     }
 
     public ObservableList<Store> getStores() {

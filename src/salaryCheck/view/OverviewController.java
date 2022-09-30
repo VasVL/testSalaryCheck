@@ -1,6 +1,7 @@
 package salaryCheck.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,12 +18,15 @@ import salaryCheck.model.StoreTableRow;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class OverviewController implements Initializable {
 
     @FXML
     private Label storeLabel;
 
+    @FXML
+    private Menu selectStoreMenu;
     @FXML
     private MenuItem addStoreMenuItem;
     @FXML
@@ -154,6 +158,18 @@ public class OverviewController implements Initializable {
         addStoreMenuItem.setOnAction(event -> dialogCreator.showStoreEditDialog());
         addEmployeeMenuItem.setOnAction(event -> dialogCreator.showEmployeeEditDialog());
         addExpenseTypeMenuItem.setOnAction(event -> dialogCreator.showExpenseTypeEditDialog());
+
+        selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+                item -> {
+                    MenuItem menuItem = new MenuItem(item.getName());
+                    menuItem.setOnAction(actionEvent -> {
+                        appData.setCurrentStore(item);
+                        storeLabel.setText(appData.getCurrentStore().toString());
+                    });
+                    return menuItem;
+                }
+            ).toList());
+        //selectStoreMenu.getItems().forEach(menuItem -> menuItem.setOnAction(actionEvent -> menuItem.g));
     }
 
 

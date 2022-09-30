@@ -33,7 +33,7 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Выбрать...">
                     <items>
-                        <Menu mnemonicParsing="false" text="Магазин" />
+                        <Menu fx:id="selectStoreMenu" mnemonicParsing="false" text="Магазин" />
                         <Menu mnemonicParsing="false" text="Продавец" />
                     </items>
                   </Menu>
