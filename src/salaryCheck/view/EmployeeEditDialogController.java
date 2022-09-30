@@ -8,8 +8,10 @@ import salaryCheck.model.AppData;
 import salaryCheck.model.Employee;
 
 
-public class EmployeeAddDialogController {
+public class EmployeeEditDialogController {
 
+    private int employeeIndex;
+    private boolean isAlreadyExist;
     private Stage dialogStage;
     private AppData appData;
     private Employee tempEmployee;
@@ -18,9 +20,11 @@ public class EmployeeAddDialogController {
     private TextField nameTextField;
 
 
-    public EmployeeAddDialogController() {
+    public EmployeeEditDialogController() {
 
-        tempEmployee = new Employee();
+        isAlreadyExist = true;
+        employeeIndex = -1;
+        //tempEmployee = new Employee();
         appData = AppData.getInstance();
     }
 
@@ -28,12 +32,23 @@ public class EmployeeAddDialogController {
         this.dialogStage = dialogStage;
     }
 
+    public void setTempEmployee(Employee employee) {
+        tempEmployee = employee;
+
+        if(!appData.getEmployees().contains(tempEmployee)) {
+            isAlreadyExist = false;
+        } else {
+            employeeIndex = appData.getEmployees().indexOf(tempEmployee);
+            nameTextField.setText(tempEmployee.getName());
+        }
+    }
+
     private boolean handleApply(){
 
         tempEmployee.setName(nameTextField.getText());
 
         for(Employee employee : appData.getEmployees()){
-            if(employee.getName().equals(tempEmployee.getName())){
+            if(appData.getEmployees().indexOf(employee) != employeeIndex && employee.getName().equals(tempEmployee.getName())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -52,7 +67,9 @@ public class EmployeeAddDialogController {
     private void handleOkButton(){
 
         if(handleApply()) {
-            appData.getEmployees().add(tempEmployee);
+            if(!isAlreadyExist) {
+                appData.getEmployees().add(tempEmployee);
+            }
             dialogStage.close();
         }
     }

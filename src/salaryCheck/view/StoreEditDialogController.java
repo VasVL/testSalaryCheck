@@ -7,9 +7,13 @@ import javafx.stage.Stage;
 import salaryCheck.model.AppData;
 import salaryCheck.model.Store;
 
+import java.util.Locale;
 
-public class StoreAddDialogController {
 
+public class StoreEditDialogController {
+
+    private int storeIndex;
+    private boolean isAlreadyExist;
     private Stage dialogStage;
     private AppData appData;
     private Store tempStore;
@@ -24,9 +28,11 @@ public class StoreAddDialogController {
     private TextField salesPercentageTextField;
 
 
-    public StoreAddDialogController() {
+    public StoreEditDialogController() {
 
-        tempStore = new Store();
+        //tempStore = new Store();
+        isAlreadyExist = true;
+        storeIndex = -1;
         appData = AppData.getInstance();
     }
 
@@ -34,12 +40,25 @@ public class StoreAddDialogController {
         this.dialogStage = dialogStage;
     }
 
+    public void setTempStore(Store store){
+        tempStore = store;
+        if(!appData.getStores().contains(tempStore)) {
+            isAlreadyExist = false;
+        } else {
+            storeIndex = appData.getStores().indexOf(store);
+            nameTextField.setText(tempStore.getName());
+            shiftPayTextField.setText(tempStore.getShiftPay().toString());
+            cleaningPayTextField.setText(tempStore.getCleaningPay().toString());
+            salesPercentageTextField.setText(String.format(Locale.ROOT, "%.1f", tempStore.getSalesPercentage() * 100));
+        }
+    }
+
     private boolean handleApply(){
 
         tempStore.setName(nameTextField.getText());
 
         for(Store store : appData.getStores()){
-            if(store.getName().equals(tempStore.getName())){
+            if(appData.getStores().indexOf(store) != storeIndex && store.getName().equals(tempStore.getName())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -54,7 +73,7 @@ public class StoreAddDialogController {
         try {
             tempStore.setShiftPay(Integer.parseInt(shiftPayTextField.getText()));
             tempStore.setCleaningPay(Integer.parseInt(cleaningPayTextField.getText()));
-            tempStore.setSalesPercentage(Integer.parseInt(salesPercentageTextField.getText()) * 0.01);
+            tempStore.setSalesPercentage(Double.parseDouble(salesPercentageTextField.getText()) * 0.01);
         } catch (NumberFormatException e){
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -64,6 +83,7 @@ public class StoreAddDialogController {
             alert.setContentText("Введите плату за смену/уборку и процент за выход цифрами");
 
             alert.showAndWait();
+            return false;
         }
 
         return tempStore.getName() != null && !tempStore.getName().equals("") &&
@@ -76,7 +96,9 @@ public class StoreAddDialogController {
     private void handleOkButton(){
 
         if(handleApply()) {
-            appData.getStores().add(tempStore);
+            if(!isAlreadyExist){
+                appData.getStores().add(tempStore);
+            }
             dialogStage.close();
         }
     }

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class MainApp extends Application {
 
-    Stage primaryStage;
+    private static Stage mainPrimaryStage;
 
     private AppData appData;
 
@@ -36,10 +36,10 @@ public class MainApp extends Application {
             controller.setMainApp(this);
 
             Scene scene = new Scene(root);
-            this.primaryStage = primaryStage;
-            this.primaryStage.setTitle("Штуки-Дрюки");
-            this.primaryStage.setScene(scene);
-            this.primaryStage.show();
+            mainPrimaryStage = primaryStage;
+            mainPrimaryStage.setTitle("Штуки-Дрюки");
+            mainPrimaryStage.setScene(scene);
+            mainPrimaryStage.show();
         }
         catch (IOException e) {
             // todo
@@ -48,8 +48,8 @@ public class MainApp extends Application {
         }
     }
 
-    public Stage getPrimaryStage() {
-        return primaryStage;
+    public static Stage getPrimaryStage() {
+        return mainPrimaryStage;
     }
 
     public static void main(String[] args) {

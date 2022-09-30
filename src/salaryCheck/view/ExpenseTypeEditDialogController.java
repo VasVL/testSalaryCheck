@@ -7,8 +7,10 @@ import javafx.stage.Stage;
 import salaryCheck.model.AppData;
 
 
-public class ExpenseTypeAddDialogController {
+public class ExpenseTypeEditDialogController {
 
+    private int expenseTypeIndex;
+    private boolean isAlreadyExist;
     private Stage dialogStage;
     private AppData appData;
     private String tempExpenseType;
@@ -17,8 +19,10 @@ public class ExpenseTypeAddDialogController {
     private TextField expenseTypeTextField;
 
 
-    public ExpenseTypeAddDialogController() {
+    public ExpenseTypeEditDialogController() {
 
+        isAlreadyExist = true;
+        expenseTypeIndex = -1;
         appData = AppData.getInstance();
     }
 
@@ -26,12 +30,23 @@ public class ExpenseTypeAddDialogController {
         this.dialogStage = dialogStage;
     }
 
+    public void setTempExpenseType(String expenseType) {
+        tempExpenseType = expenseType;
+
+        if(!appData.getExpenseTypes().contains(tempExpenseType)) {
+            isAlreadyExist = false;
+        } else {
+            expenseTypeIndex = appData.getExpenseTypes().indexOf(tempExpenseType);
+            expenseTypeTextField.setText(tempExpenseType);
+        }
+    }
+
     private boolean handleApply(){
 
         tempExpenseType = expenseTypeTextField.getText();
 
         for(String expenseType : appData.getExpenseTypes()){
-            if(expenseType.equals(tempExpenseType)){
+            if(appData.getExpenseTypes().indexOf(expenseType) != expenseTypeIndex && expenseType.equals(tempExpenseType)){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -50,7 +65,11 @@ public class ExpenseTypeAddDialogController {
     private void handleOkButton(){
 
         if(handleApply()) {
-            appData.getExpenseTypes().add(tempExpenseType);
+            if(!isAlreadyExist) {
+                appData.getExpenseTypes().add(tempExpenseType);
+            } else {
+                appData.getExpenseTypes().set(expenseTypeIndex, tempExpenseType);
+            }
             dialogStage.close();
         }
     }

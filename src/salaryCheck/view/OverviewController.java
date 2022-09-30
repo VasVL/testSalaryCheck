@@ -3,15 +3,10 @@ package salaryCheck.view;
 import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.AppData;
@@ -19,7 +14,6 @@ import salaryCheck.model.Employee;
 import salaryCheck.model.Expense;
 import salaryCheck.model.StoreTableRow;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -28,12 +22,20 @@ public class OverviewController implements Initializable {
 
     @FXML
     private Label storeLabel;
+
+    @FXML
+    private MenuItem addStoreMenuItem;
+    @FXML
+    private MenuItem addEmployeeMenuItem;
+    @FXML
+    private MenuItem addExpenseTypeMenuItem;
     @FXML
     private MenuItem storesMenuItem;
     @FXML
     private MenuItem employeesMenuItem;
     @FXML
     private MenuItem expenseTypesMenuItem;
+
 
     @FXML
     private TableView<StoreTableRow> storeTableView;
@@ -61,7 +63,8 @@ public class OverviewController implements Initializable {
 
 
     // Ссылка на данные приложения
-    public AppData appData;
+    private final AppData appData;
+    private final DialogCreator dialogCreator;
     public MainApp mainApp = new MainApp();
 
     /**
@@ -71,6 +74,7 @@ public class OverviewController implements Initializable {
     public OverviewController() {
         // Добавление в таблицу данные из наблюдаемого списка
         appData = AppData.getInstance();
+        dialogCreator = new DialogCreator();
     }
 
 
@@ -100,19 +104,7 @@ public class OverviewController implements Initializable {
                         map(Expense::toString).
                         reduce((s1, s2) -> s1 + ";\n" + s2).orElse(""),
                 cellData.getValue().expensesProperty())
-                /*cellData -> cellData.getValue().expensesProperty().asString()*/
-                /*new SimpleStringProperty(
-                    cellData.getValue().
-                    getExpenses().
-                    stream().
-                    map(Expense::toString).
-                    reduce((s1, s2) -> s1 + ";\n" + s2).orElse("")
-                )*/
         );
-
-        //storeTableView.setEditable(true);
-        //employeeTableColumn.setEditable(true);
-        //allFeeTableColumn.setEditable(true);
 
         /*
         * Устанавливаем возможность менять значения в таблице
@@ -120,7 +112,6 @@ public class OverviewController implements Initializable {
         * Для сотрудников используем ComboBox, потому что их ограниченное количество
         *
         * */
-
         employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees()));
         employeeTableColumn.setOnEditCommit(editEvent ->
                 ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
@@ -150,104 +141,19 @@ public class OverviewController implements Initializable {
             @Override
             public void handle(TableColumn.CellEditEvent<StoreTableRow, String> editEvent) {
                 int indexRow = editEvent.getTablePosition().getRow();
-                showExpensesEditDialog(indexRow);
+                dialogCreator.showExpensesEditDialog(indexRow);
             }
         });
 
-        // todo надо бы добавить в storeTableView какой Listener или типа того, чтоб значения в appData менялись
 
+        // Файл -> Магазины / Продавцы / Статьи расходов
+        storesMenuItem.setOnAction(event -> dialogCreator.showListOverview(0));
+        employeesMenuItem.setOnAction(event -> dialogCreator.showListOverview(1));
+        expenseTypesMenuItem.setOnAction(event -> dialogCreator.showListOverview(2));
 
-        // Menu
-        storesMenuItem.setOnAction(event -> showListOverview(0));
-        employeesMenuItem.setOnAction(event -> showListOverview(1));
-        expenseTypesMenuItem.setOnAction(event -> showListOverview(2));
-    }
-
-    private Stage createDialog(FXMLLoader loader, String title) throws IOException {
-
-        Parent root = loader.load();
-
-        Stage stage = new Stage();
-        stage.setTitle(title);
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.initOwner(mainApp.getPrimaryStage());
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.show();
-
-        return stage;
-    }
-
-    private void showExpensesEditDialog(int indexRow){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
-        try {
-            Stage stage = createDialog(loader, "Внесение расходов");
-
-            ExpensesEditDialogController expensesEditController = loader.getController();
-            expensesEditController.setDialogStage(stage);
-            expensesEditController.setRowIndex(indexRow);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            //System.out.println("O-la-la");
-        }
-    }
-
-    @FXML
-    private void showStoreAddDialog(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("StoreAddDialog.fxml"));
-        try {
-            Stage stage = createDialog(loader, "Добавление магазина");
-
-            StoreAddDialogController storeAddController = loader.getController();
-            storeAddController.setDialogStage(stage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void showEmployeeAddDialog(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeAddDialog.fxml"));
-        try {
-            Stage stage = createDialog(loader, "Добавление сотрудника");
-
-            EmployeeAddDialogController employeeAddController = loader.getController();
-            employeeAddController.setDialogStage(stage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void showExpenseTypeAddDialog(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpenseTypeAddDialog.fxml"));
-        try {
-            Stage stage = createDialog(loader, "Добавление статьи расходов");
-
-            ExpenseTypeAddDialogController expenseTypeAddController = loader.getController();
-            expenseTypeAddController.setDialogStage(stage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void showListOverview(int startTab){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ListOverview.fxml"));
-        try {
-            Stage stage = createDialog(loader, "Список штук");
-
-            ListOverviewController listOverviewController = loader.getController();
-            listOverviewController.setDialogStage(stage);
-            listOverviewController.setStartTab(startTab);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        addStoreMenuItem.setOnAction(event -> dialogCreator.showStoreEditDialog());
+        addEmployeeMenuItem.setOnAction(event -> dialogCreator.showEmployeeEditDialog());
+        addExpenseTypeMenuItem.setOnAction(event -> dialogCreator.showExpenseTypeEditDialog());
     }
 
 

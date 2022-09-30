@@ -12,7 +12,7 @@ public class Employee {
     private ObservableMap<LocalDate, Store> workDays;
 
     // Это не буду синхронизовать
-    private IntegerProperty salaryBalance;
+    private Integer salaryBalance;
 
     public Employee() {
         this("");
@@ -21,6 +21,7 @@ public class Employee {
     public Employee(String name) {
         this.name = name;
         workDays = FXCollections.observableHashMap();
+        salaryBalance = 0;
     }
 
     public String getName() {
@@ -43,11 +44,7 @@ public class Employee {
         workDays.remove(date);
     }
 
-    public int getSalaryBalance() {
-        return salaryBalance.get();
-    }
-
-    public IntegerProperty salaryBalanceProperty() {
+    public Integer getSalaryBalance() {
         return salaryBalance;
     }
 

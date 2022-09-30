@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="165.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salaryCheck.view.EmployeeAddDialogController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="314.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="salaryCheck.view.StoreEditDialogController">
    <children>
       <HBox alignment="BOTTOM_RIGHT" layoutX="400.0" layoutY="294.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <padding>
@@ -25,26 +25,47 @@
       </HBox>
       <VBox layoutX="14.0" layoutY="14.0" prefWidth="421.0" spacing="15.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label fx:id="storeLabel" alignment="CENTER" prefHeight="23.0" prefWidth="406.0" text="Новый Сотрудник">
+            <Label fx:id="storeLabel" alignment="CENTER" prefHeight="23.0" prefWidth="406.0" text="Магазин">
                <font>
                   <Font size="30.0" />
                </font>
             </Label>
             <GridPane>
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="191.0" minWidth="10.0" prefWidth="140.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="251.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label alignment="CENTER" prefHeight="30.0" prefWidth="210.0" text="Имя">
+                  <Label prefHeight="30.0" prefWidth="172.0" text="Название">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <Label prefHeight="30.0" prefWidth="166.0" text="Плата за смену" GridPane.rowIndex="1">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <Label prefHeight="30.0" prefWidth="171.0" text="Плата за уборку" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <Label prefHeight="30.0" prefWidth="193.0" text="Процент от продаж" GridPane.rowIndex="3">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
                   <TextField fx:id="nameTextField" GridPane.columnIndex="1" />
+                  <TextField fx:id="cleaningPayTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="salesPercentageTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField fx:id="shiftPayTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
          </children>

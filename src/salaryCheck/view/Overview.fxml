@@ -26,29 +26,15 @@
             <items>
                   <Menu mnemonicParsing="false" text="Добавить...">
                     <items>
-                      <MenuItem mnemonicParsing="false" onAction="#showStoreAddDialog" text="Магазин" />
-                        <MenuItem mnemonicParsing="false" onAction="#showEmployeeAddDialog" text="Продавец" />
-                        <MenuItem mnemonicParsing="false" onAction="#showExpenseTypeAddDialog" text="Статья расходов" />
+                      <MenuItem fx:id="addStoreMenuItem" mnemonicParsing="false" text="Магазин" />
+                        <MenuItem fx:id="addEmployeeMenuItem" mnemonicParsing="false" text="Продавец" />
+                        <MenuItem fx:id="addExpenseTypeMenuItem" mnemonicParsing="false" text="Статья расходов" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Выбрать...">
                     <items>
                         <Menu mnemonicParsing="false" text="Магазин" />
                         <Menu mnemonicParsing="false" text="Продавец" />
-                    </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Изменить...">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Магазин" />
-                        <MenuItem mnemonicParsing="false" text="Продавец" />
-                        <MenuItem mnemonicParsing="false" text="Статья расходов" />
-                    </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Удалить...">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Магазин" />
-                        <MenuItem mnemonicParsing="false" text="Продавец" />
-                        <MenuItem mnemonicParsing="false" text="Статья расходов" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
