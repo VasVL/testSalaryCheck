@@ -1,7 +1,6 @@
 package salaryCheck.view;
 
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,20 +9,16 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
-import salaryCheck.model.AppData;
-import salaryCheck.model.Employee;
-import salaryCheck.model.Expense;
-import salaryCheck.model.StoreTableRow;
+import salaryCheck.model.*;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class OverviewController implements Initializable {
 
     @FXML
-    private Label storeLabel;
+    private ComboBox<Store> storeComboBox;
 
     @FXML
     private Menu selectStoreMenu;
@@ -85,7 +80,8 @@ public class OverviewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        storeLabel.setText(appData.getCurrentStore().toString());
+        storeComboBox.setItems(appData.getStores());
+        storeComboBox.setOnAction(event -> appData.setCurrentStore(storeComboBox.getValue()));
 
         storeTableView.setItems(appData.getStoreTable());
 
@@ -116,15 +112,23 @@ public class OverviewController implements Initializable {
         * Для сотрудников используем ComboBox, потому что их ограниченное количество
         *
         * */
+
         employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees()));
-        employeeTableColumn.setOnEditCommit(editEvent ->
-                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                setEmployee(editEvent.getNewValue()));
+        employeeTableColumn.setOnEditCommit(editEvent ->{
+                StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
+                // удаляем рабочий день у сотрудника, который был выбран до этого
+                if(editEvent.getOldValue() != null){
+                    editEvent.getOldValue().removeWorkDay(currentRow.getDate());
+                }
+                // добавляем рабочий день новому выбранному сотруднику
+                editEvent.getNewValue().addWorkDay(currentRow.getDate(), appData.getCurrentStore());
+                currentRow.setEmployee(editEvent.getNewValue()); } );
+
 
         allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         allFeeTableColumn.setOnEditCommit(editEvent ->
                 ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                setAllFee(editEvent.getNewValue()));
+                        setAllFee(editEvent.getNewValue()));
 
         nonCashTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         nonCashTableColumn.setOnEditCommit(editEvent ->
@@ -155,21 +159,47 @@ public class OverviewController implements Initializable {
         employeesMenuItem.setOnAction(event -> dialogCreator.showListOverview(1));
         expenseTypesMenuItem.setOnAction(event -> dialogCreator.showListOverview(2));
 
+        // файл -> Добавить...
         addStoreMenuItem.setOnAction(event -> dialogCreator.showStoreEditDialog());
         addEmployeeMenuItem.setOnAction(event -> dialogCreator.showEmployeeEditDialog());
         addExpenseTypeMenuItem.setOnAction(event -> dialogCreator.showExpenseTypeEditDialog());
 
+        // todo убрать повтор
         selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
                 item -> {
                     MenuItem menuItem = new MenuItem(item.getName());
                     menuItem.setOnAction(actionEvent -> {
                         appData.setCurrentStore(item);
-                        storeLabel.setText(appData.getCurrentStore().toString());
                     });
                     return menuItem;
                 }
             ).toList());
-        //selectStoreMenu.getItems().forEach(menuItem -> menuItem.setOnAction(actionEvent -> menuItem.g));
+        // setOnAction добавил, потому что без него при начальном пустом списке магазинов selectStoreMenu отказывался обновляться
+        selectStoreMenu.setOnAction(event -> {
+            selectStoreMenu.getItems().clear();
+            selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+                    item -> {
+                        MenuItem menuItem = new MenuItem(item.getName());
+                        menuItem.setOnAction(actionEvent -> {
+                            appData.setCurrentStore(item);
+                            storeComboBox.setValue(item);
+                        });
+                        return menuItem;
+                    }
+            ).toList()); } );
+
+        selectStoreMenu.setOnShowing(event -> {
+            selectStoreMenu.getItems().clear();
+            selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+                item -> {
+                    MenuItem menuItem = new MenuItem(item.getName());
+                    menuItem.setOnAction(actionEvent -> {
+                        appData.setCurrentStore(item);
+                        storeComboBox.setValue(item);
+                    });
+                    return menuItem;
+                }
+            ).toList()); } );
     }
 
 

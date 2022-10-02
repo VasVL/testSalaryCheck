@@ -14,14 +14,14 @@ public class AppData {
     private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
 
     private ObservableList<Store> stores = FXCollections.observableArrayList(
-            new Store("Магазин 1", 1200, 200, 0.06),
-            new Store("Магазин 2", 1200, 200, 0.06),
-            new Store("Магазин 3", 1200, 200, 0.06)
+            //new Store("Магазин 1", 1200, 200, 0.06),
+            //new Store("Магазин 2", 1200, 200, 0.06),
+            //new Store("Магазин 3", 1200, 200, 0.06)
     );
 
     private ObservableList<Employee> employees = FXCollections.observableArrayList(
-            new Employee("Васян"),
-            new Employee("Мистер Пропер")
+            //new Employee("Васян"),
+            //new Employee("Мистер Пропер")
     );
 
     private ObservableList<String> expenseTypes = FXCollections.observableArrayList(
@@ -33,8 +33,8 @@ public class AppData {
 
     private AppData() {
         //Для начала сунем всё сюдой
-        currentStore = stores.get(0);
-        for(int i = 0; i < 30; i++){
+        currentStore = new Store();//stores.get(0);
+        /*for(int i = 0; i < 30; i++){
             StoreTableRow storeTableRow_1 = new StoreTableRow();
             StoreTableRow storeTableRow_2 = new StoreTableRow();
             StoreTableRow storeTableRow_3 = new StoreTableRow();
@@ -54,15 +54,17 @@ public class AppData {
             int random = (int)(Math.random()*2);
             storeTableRow_3.setEmployee(employees.get(random));
 
+            // todo нужно ещё смотреть, чтобы смен на разных магазинах в один день у человека не было
             employees.get(0).addWorkDay(LocalDate.now().minusDays(i), stores.get(0));
             employees.get(1).addWorkDay(LocalDate.now().minusDays(i), stores.get(1));
-            employees.get(random).addWorkDay(LocalDate.now().minusDays(i), stores.get(2));
+            employees.get(random).addWorkDay(LocalDate.now().minusDays(i), stores.get(0));
+
 
             stores.get(0).addStoreTableRow(storeTableRow_1);
             stores.get(1).addStoreTableRow(storeTableRow_2);
             stores.get(2).addStoreTableRow(storeTableRow_3);
             //storeTable.add(storeTableRow_1);
-        }
+        }*/
 
         fillStoreTable();
     }
@@ -84,15 +86,23 @@ public class AppData {
         for(Store store : stores){
             if(store.equals(currentStore)){
                 storeTable.clear();
+                // Проверяем, если магазин только создан - Табличка пуста, и её нужно заполнить для начала датами
+                checkBlankStoreTable();
                 storeTable.addAll(currentStore.getStoreTable());
                 return;
             }
         }
     }
 
-    //private void clearStoreTable(){
-    //
-    //}
+    private void checkBlankStoreTable(){
+        if(currentStore.getStoreTable().size() == 0) {
+            for(int i = 0; i < 30; i++){
+                StoreTableRow storeTableRow = new StoreTableRow();
+                storeTableRow.setDate(LocalDate.now().minusDays(i));
+                currentStore.addStoreTableRow(storeTableRow);
+            }
+        }
+    }
 
     public Store getCurrentStore() {
         return currentStore;

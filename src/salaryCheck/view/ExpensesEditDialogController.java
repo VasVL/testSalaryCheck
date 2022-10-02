@@ -21,15 +21,14 @@ import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class ExpensesEditDialogController implements Initializable {
 
     private final int AMOUNT_COLUMN = 0;
     private final int PURPOSES_COLUMN = 1;
+    private final AppData appData;
 
     private int rowIndex;
-    private AppData appData;
 
     private Stage dialogStage;
 
@@ -129,6 +128,7 @@ public class ExpensesEditDialogController implements Initializable {
                         ).map(Map.Entry::getKey).toList()
                 )));
 
+        // todo селать проверку зп
         employee.setOnAction( actionEvent ->
                 date.setItems( FXCollections.observableArrayList(
                         employee.getValue().getWorkDays().entrySet().stream().filter(entry ->

@@ -12,10 +12,10 @@ import java.util.Locale;
 
 public class StoreEditDialogController {
 
+    private final AppData appData;
     private int storeIndex;
     private boolean isAlreadyExist;
     private Stage dialogStage;
-    private AppData appData;
     private Store tempStore;
 
     @FXML
@@ -98,6 +98,8 @@ public class StoreEditDialogController {
         if(handleApply()) {
             if(!isAlreadyExist){
                 appData.getStores().add(tempStore);
+                // Если что, могём переключаться на только что созданную талицу
+                //appData.setCurrentStore(tempStore);
             }
             dialogStage.close();
         }

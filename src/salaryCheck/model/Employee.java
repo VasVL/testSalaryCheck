@@ -1,10 +1,10 @@
 package salaryCheck.model;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 public class Employee {
 
@@ -45,7 +45,30 @@ public class Employee {
     }
 
     public Integer getSalaryBalance() {
+
+        salaryBalance = 0;
+        for(Map.Entry<LocalDate, Store> entry : workDays.entrySet()){
+            Store store = entry.getValue();
+            StoreTableRow tableRow = store.getStoreTable().stream().filter(row -> row.getDate().equals(entry.getKey())).findAny().orElse(null);
+
+            if (tableRow != null) {
+                salaryBalance += store.getShiftPay() +
+                        store.getCleaningPay() +
+                        (int)(store.getSalesPercentage() * tableRow.getAllFee());
+
+                // todo тут неверно: смотрит расходы только в свои рабочие дни
+                for(Expense expense : tableRow.getExpenses()){
+                    if(expense.getExpenseType().equals("Зарплата") && expense.getEmployee().equals(this)){
+                        salaryBalance -= expense.getAmount();
+                    }
+                }
+            }
+        }
         return salaryBalance;
+    }
+
+    public void addSalaryBalance(int amount){
+        this.salaryBalance += amount;
     }
 
     @Override

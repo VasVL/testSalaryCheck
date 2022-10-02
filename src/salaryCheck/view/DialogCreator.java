@@ -3,6 +3,7 @@ package salaryCheck.view;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import salaryCheck.MainApp;
@@ -16,10 +17,11 @@ public class DialogCreator {
     public DialogCreator() {
     }
 
-    private Stage createDialog(FXMLLoader loader, String title, Stage owner) throws IOException {
+    private Stage createDialog(FXMLLoader loader, String title, Stage owner, Image icon) throws IOException {
         Parent root = loader.load();
 
         Stage stage = new Stage();
+        stage.getIcons().add(icon);
         stage.setTitle(title);
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -30,9 +32,9 @@ public class DialogCreator {
         return stage;
     }
 
-    private Stage createDialog(FXMLLoader loader, String title) throws IOException {
+    private Stage createDialog(FXMLLoader loader, String title, Image image) throws IOException {
 
-        return createDialog(loader, title, MainApp.getPrimaryStage());
+        return createDialog(loader, title, MainApp.getPrimaryStage(), image);
     }
 
 
@@ -41,7 +43,8 @@ public class DialogCreator {
     public void showExpensesEditDialog(int indexRow){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Внесение расходов");
+            Stage stage = createDialog(loader, "Внесение расходов", new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
+
 
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
@@ -58,7 +61,7 @@ public class DialogCreator {
     public void showStoreEditDialog(Stage owner, Store editingStore){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("StoreEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Редактирование магазина", owner);
+            Stage stage = createDialog(loader, "Редактирование магазина", owner, new Image("salaryCheck\\sources\\images\\store.png"));
 
             StoreEditDialogController storeAddController = loader.getController();
             storeAddController.setDialogStage(stage);
@@ -83,7 +86,7 @@ public class DialogCreator {
     public void showEmployeeEditDialog(Stage owner, Employee employee){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Добавление сотрудника", owner);
+            Stage stage = createDialog(loader, "Добавление сотрудника", owner, new Image("salaryCheck\\sources\\images\\user.png"));
 
             EmployeeEditDialogController employeeEditController = loader.getController();
             employeeEditController.setDialogStage(stage);
@@ -107,7 +110,7 @@ public class DialogCreator {
     public void showExpenseTypeEditDialog(Stage owner, String expenseType){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpenseTypeEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Добавление статьи расходов", owner);
+            Stage stage = createDialog(loader, "Добавление статьи расходов", owner, new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
 
             ExpenseTypeEditDialogController expenseTypeEditController = loader.getController();
             expenseTypeEditController.setDialogStage(stage);
@@ -131,7 +134,7 @@ public class DialogCreator {
     public void showListOverview(int startTab){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ListOverview.fxml"));
         try {
-            Stage stage = createDialog(loader, "Список штук");
+            Stage stage = createDialog(loader, "Список штук", new Image("salaryCheck\\sources\\images\\list.png"));
 
             ListOverviewController listOverviewController = loader.getController();
             listOverviewController.setDialogStage(stage);

@@ -15,14 +15,16 @@ public class Store {
     public Store() {
 
         //this("Неизвестный магазин", 1200, 200, 0.06);
+        this.storeTable = FXCollections.observableArrayList();
     }
 
     public Store(String name, Integer shiftPay, Integer cleaningPay, Double salesPercentage) {
+        this();
         this.name = name;
         this.shiftPay = shiftPay;
         this.cleaningPay = cleaningPay;
         this.salesPercentage = salesPercentage;
-        this.storeTable = FXCollections.observableArrayList();
+        //this.storeTable = FXCollections.observableArrayList();
     }
 
     public String getName() {

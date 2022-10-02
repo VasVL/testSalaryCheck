@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import salaryCheck.model.AppData;
 import salaryCheck.view.OverviewController;
@@ -37,6 +38,8 @@ public class MainApp extends Application {
 
             Scene scene = new Scene(root);
             mainPrimaryStage = primaryStage;
+            Image icon = new Image("salaryCheck\\sources\\images\\frequency.png");
+            primaryStage.getIcons().add(icon);
             mainPrimaryStage.setTitle("Штуки-Дрюки");
             mainPrimaryStage.setScene(scene);
             mainPrimaryStage.show();
