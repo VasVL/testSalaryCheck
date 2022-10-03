@@ -3,12 +3,16 @@ package salaryCheck.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+
 public class Store {
 
     private String name;
     private Integer shiftPay;
     private Integer cleaningPay;
     private Double salesPercentage;
+
 
     private ObservableList<StoreTableRow> storeTable;
 
@@ -31,6 +35,7 @@ public class Store {
         return name;
     }
 
+    @XmlElement(name = "name")
     public void setName(String name) {
         this.name = name;
     }
@@ -41,6 +46,7 @@ public class Store {
         return shiftPay;
     }
 
+    @XmlElement(name = "shiftPay")
     public void setShiftPay(Integer shiftPay) {
         this.shiftPay = shiftPay;
     }
@@ -51,6 +57,7 @@ public class Store {
         return cleaningPay;
     }
 
+    @XmlElement(name = "cleaningPay")
     public void setCleaningPay(Integer cleaningPay) {
         this.cleaningPay = cleaningPay;
     }
@@ -61,21 +68,27 @@ public class Store {
         return salesPercentage;
     }
 
+    @XmlElement(name = "salesPercentage")
     public void setSalesPercentage(Double salesPercentage) {
         this.salesPercentage = salesPercentage;
     }
+
 
 
     public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;
     }
 
+    @XmlElementWrapper(name = "storeTable")
+    @XmlElement(name = "storeTableRow")
     public void setStoreTable(ObservableList<StoreTableRow> storeTable) {
         this.storeTable = storeTable;
     }
     public void addStoreTableRow(StoreTableRow storeTableRow){
         this.storeTable.add(storeTableRow);
     }
+
+
 
     @Override
     public String toString() {

@@ -11,6 +11,7 @@ import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.*;
 
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -74,6 +75,9 @@ public class OverviewController implements Initializable {
         // Добавление в таблицу данные из наблюдаемого списка
         appData = AppData.getInstance();
         dialogCreator = new DialogCreator();
+        // todo
+        MainApp.loadPersonDataFromFile(new File("AppData.xml"));
+        appData.calculateEmployeesWorkDays();
     }
 
 
@@ -220,5 +224,17 @@ public class OverviewController implements Initializable {
         if(selectedRow >= 0) {
             storeTableView.getItems().get(selectedRow).clearRow(appData.getStoreTable(), selectedRow);
         }
+    }
+
+    @FXML
+    private void handleOkButton(){
+
+        MainApp.savePersonDataToFile(new File("AppData.xml"));
+        MainApp.getPrimaryStage().close();
+    }
+
+    @FXML
+    private void handleCloseButton(){
+        MainApp.getPrimaryStage().close();
     }
 }

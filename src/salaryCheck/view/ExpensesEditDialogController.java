@@ -85,7 +85,10 @@ public class ExpensesEditDialogController implements Initializable {
                                         ((ChoiceBox<Employee>) hBoxChild).setValue(expense.getEmployee());
                                     } else
                                     if (((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Store) {
-                                        ((ChoiceBox<Store>) hBoxChild).setValue(expense.getStore());
+                                        ((ChoiceBox<Store>) hBoxChild).setValue(
+                                                appData.getStores().stream().filter(item ->
+                                                        item.getName().equals(expense.getStore())
+                                                ).findAny().orElse(null));
                                     } else
                                     if (((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof LocalDate) {
                                         ((ChoiceBox<LocalDate>) hBoxChild).setValue(expense.getDate());
@@ -238,7 +241,7 @@ public class ExpensesEditDialogController implements Initializable {
                                 tempExpense.setEmployee(((ChoiceBox<Employee>)hBoxChild).getValue());
                             } else
                             if (((ChoiceBox<?>)hBoxChild).getValue() instanceof Store) {
-                                tempExpense.setStore(((ChoiceBox<Store>)hBoxChild).getValue());
+                                tempExpense.setStore(((ChoiceBox<Store>)hBoxChild).getValue().getName());
                             } else
                             if (((ChoiceBox<?>)hBoxChild).getValue() instanceof LocalDate) {
                                 tempExpense.setDate(((ChoiceBox<LocalDate>)hBoxChild).getValue());

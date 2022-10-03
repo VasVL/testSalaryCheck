@@ -80,8 +80,8 @@
       <HBox layoutX="1058.0" layoutY="769.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
             <Button mnemonicParsing="false" onAction="#clearRow" text="Очистить строку" />
-            <Button mnemonicParsing="false" prefWidth="62.0" text="OK" />
-            <Button mnemonicParsing="false" prefWidth="62.0" text="Закрыть" />
+            <Button mnemonicParsing="false" onAction="#handleOkButton" prefWidth="62.0" text="OK" />
+            <Button mnemonicParsing="false" onAction="#handleCloseButton" prefWidth="62.0" text="Закрыть" />
          </children>
          <padding>
             <Insets bottom="15.0" right="15.0" />

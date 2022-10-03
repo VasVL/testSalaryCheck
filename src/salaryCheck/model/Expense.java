@@ -1,5 +1,8 @@
 package salaryCheck.model;
 
+import salaryCheck.LocalDateAdapter;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 
 public class Expense {
@@ -9,7 +12,7 @@ public class Expense {
 
     private String expenseType;
     private Employee employee;
-    private Store store;
+    private String store;    // Здесь переделываю Store в String из-за ошибки сериализации: возникает бесконечный цикл
     //todo возможность расчёта зп за месяц
     //private final String allSalary = "за месяц";
     private LocalDate date;
@@ -33,6 +36,8 @@ public class Expense {
         this.amount = amount;
     }
 
+
+
     public String getPurpose() {
         return purpose;
     }
@@ -40,6 +45,8 @@ public class Expense {
     public void setPurpose(String purpose) {
         this.purpose = purpose;
     }
+
+
 
     public String getExpenseType() {
         return expenseType;
@@ -49,6 +56,8 @@ public class Expense {
         this.expenseType = expenseType;
     }
 
+
+
     public Employee getEmployee() {
         return employee;
     }
@@ -57,21 +66,27 @@ public class Expense {
         this.employee = employee;
     }
 
-    public Store getStore() {
+
+
+    public String getStore() {
         return store;
     }
 
-    public void setStore(Store store) {
+    public void setStore(String store) {
         this.store = store;
     }
+
+
 
     public LocalDate getDate() {
         return date;
     }
-
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public void setDate(LocalDate date) {
         this.date = date;
     }
+
+
 
     public String getComment() {
         return comment;
@@ -80,6 +95,8 @@ public class Expense {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+
 
     @Override
     public String toString() {

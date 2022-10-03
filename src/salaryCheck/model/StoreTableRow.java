@@ -3,7 +3,11 @@ package salaryCheck.model;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import salaryCheck.LocalDateAdapter;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -60,7 +64,7 @@ public class StoreTableRow {
 
 
 
-
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     public LocalDate getDate() {
         return date.get();
     }
@@ -150,7 +154,8 @@ public class StoreTableRow {
 
 
 
-
+    @XmlElementWrapper(name = "expenses")
+    @XmlElement(name = "expense")
     public ObservableList<Expense> getExpenses() {
         return expenses.get();
     }

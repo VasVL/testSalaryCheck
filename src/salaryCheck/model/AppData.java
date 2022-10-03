@@ -3,15 +3,24 @@ package salaryCheck.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import javax.xml.bind.annotation.*;
 import java.time.LocalDate;
 
+@XmlType(factoryClass = AppData.class, factoryMethod = "getInstance", propOrder = {"stores", "employees", "expenseTypes"})
+@XmlRootElement
 public class AppData {
 
     private static volatile AppData instance;
 
     private Store currentStore;
 
+
     private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
+
+    /*
+    * Следующие три листа: stores, employees, expenseTypes нужно сохранять в виде XML
+    *
+    * */
 
     private ObservableList<Store> stores = FXCollections.observableArrayList(
             //new Store("Магазин 1", 1200, 200, 0.06),
@@ -26,14 +35,19 @@ public class AppData {
 
     private ObservableList<String> expenseTypes = FXCollections.observableArrayList(
             "Зарплата",
-            "Бензин МГ",
-            "Хоз. нужды",
+            //"Бензин МГ",
+            //"Хоз. нужды",
             "Другое:"
     );
 
     private AppData() {
         //Для начала сунем всё сюдой
-        currentStore = new Store();//stores.get(0);
+        if(stores.isEmpty()){
+            currentStore = new Store();//stores.get(0);
+        } else {
+            currentStore = stores.get(0);
+        }
+
         /*for(int i = 0; i < 30; i++){
             StoreTableRow storeTableRow_1 = new StoreTableRow();
             StoreTableRow storeTableRow_2 = new StoreTableRow();
@@ -104,25 +118,54 @@ public class AppData {
         }
     }
 
+    public void calculateEmployeesWorkDays(){
+        for(Employee employee : employees){
+            for(Store store : stores){
+                for(StoreTableRow tableRow : store.getStoreTable()){
+                    if(tableRow.getEmployee().equals(employee)){
+                        employee.addWorkDay(tableRow.getDate(), store);
+                    }
+                }
+            }
+        }
+    }
+
     public Store getCurrentStore() {
         return currentStore;
     }
-
+    @XmlTransient
     public void setCurrentStore(Store currentStore) {
         this.currentStore = currentStore;
         fillStoreTable();
     }
 
-    public ObservableList<Store> getStores() {
-        return stores;
-    }
-
+    @XmlTransient
     public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;
     }
+
+    public ObservableList<Store> getStores() {
+        return stores;
+    }
+    @XmlElementWrapper(name = "stores")
+    @XmlElement(name = "store")
+    public void setStores(ObservableList<Store> stores) {
+        this.stores = stores;
+    }
+
     public ObservableList<Employee> getEmployees() { return employees; }
+    @XmlElementWrapper(name = "employees")
+    @XmlElement(name = "employee")
+    public void setEmployees(ObservableList<Employee> employees) {
+        this.employees = employees;
+    }
 
     public ObservableList<String> getExpenseTypes() {
         return expenseTypes;
+    }
+    @XmlElementWrapper(name = "expenseTypes")
+    @XmlElement(name = "expenseType")
+    public void setExpenseTypes(ObservableList<String> expenseTypes) {
+        this.expenseTypes = expenseTypes;
     }
 }
