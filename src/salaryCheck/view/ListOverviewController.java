@@ -1,5 +1,7 @@
 package salaryCheck.view;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -11,6 +13,7 @@ import salaryCheck.model.Store;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ListOverviewController implements Initializable {
 
@@ -67,9 +70,10 @@ public class ListOverviewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        storeListView.setItems(appData.getStores());
-        employeeListView.setItems(appData.getEmployees());
-        expenseTypeListView.setItems(appData.getExpenseTypes());
+        // todo при таком подходе значения в листе не обновляются автоматически
+        storeListView.setItems( appData.getStores().filtered(Store::isActive) );
+        employeeListView.setItems( appData.getEmployees().filtered(Employee::isActive) );
+        expenseTypeListView.setItems( appData.getExpenseTypes() );
 
         storeListView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> showStoreInfo(newValue));
         employeeListView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> showEmployeeInfo(newValue));
@@ -105,8 +109,10 @@ public class ListOverviewController implements Initializable {
 
         if(selectedTab.equals(storesTab)){
             dialogCreator.showStoreEditDialog(dialogStage);
+            storeListView.setItems( appData.getStores().filtered(Store::isActive) );
         } else if(selectedTab.equals(employeesTab)) {
             dialogCreator.showEmployeeEditDialog(dialogStage);
+            employeeListView.setItems( appData.getEmployees().filtered(Employee::isActive) );
         } else if(selectedTab.equals(expenseTypesTab)) {
             dialogCreator.showExpenseTypeEditDialog(dialogStage);
         }
@@ -120,10 +126,12 @@ public class ListOverviewController implements Initializable {
         if(selectedTab.equals(storesTab)){
             if(storeListView.getSelectionModel().getSelectedItem() != null) {
                 dialogCreator.showStoreEditDialog(dialogStage, storeListView.getSelectionModel().getSelectedItem());
+                storeListView.setItems( appData.getStores().filtered(Store::isActive) );
             }
         } else if(selectedTab.equals(employeesTab)) {
             if(employeeListView.getSelectionModel().getSelectedItem() != null){
                 dialogCreator.showEmployeeEditDialog(dialogStage, employeeListView.getSelectionModel().getSelectedItem());
+                employeeListView.setItems( appData.getEmployees().filtered(Employee::isActive) );
             }
         } else if(selectedTab.equals(expenseTypesTab)) {
             if(expenseTypeListView.getSelectionModel().getSelectedItem() != null){
@@ -139,12 +147,21 @@ public class ListOverviewController implements Initializable {
         //todo здесь нужно помнить, что удалять целмком ничего не надо,
         // точнее нужно оставить то, что уже используется в таблице, но скрыть возможность использовать это в дальнейшем
         // Возможно нужно будет сделать два списка для оних и тех же магазинов / сотрудников / расходов : актуальный и архив
+        // Вместо \того сделал переменную isActive
         if(selectedTab.equals(storesTab)){
-
+            if(storeListView.getSelectionModel().getSelectedItem() != null) {
+                storeListView.getSelectionModel().getSelectedItem().setActive(false);
+                storeListView.setItems( appData.getStores().filtered(Store::isActive) );
+            }
         } else if(selectedTab.equals(employeesTab)) {
-
+            if(employeeListView.getSelectionModel().getSelectedItem() != null){
+                employeeListView.getSelectionModel().getSelectedItem().setActive(false);
+                employeeListView.setItems( appData.getEmployees().filtered(Employee::isActive) );
+            }
         } else if(selectedTab.equals(expenseTypesTab)) {
-
+            if(expenseTypeListView.getSelectionModel().getSelectedItem() != null){
+                // todo шо-то со строками делать
+            }
         }
     }
 

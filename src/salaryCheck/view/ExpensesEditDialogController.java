@@ -61,7 +61,6 @@ public class ExpensesEditDialogController implements Initializable {
             addGridRow();
             ObservableList<Node> children = expensesGridPane.getChildren();
             int lastRowNumber = expensesGridPane.getRowCount() - 1;
-            //int i = 0;
 
             for(Node child : children){
                 Integer rowIndex = GridPane.getRowIndex(child);
@@ -71,20 +70,19 @@ public class ExpensesEditDialogController implements Initializable {
                         if(columnIndex == AMOUNT_COLUMN) {
                             ((TextField) child).setText(expense.getAmount().toString());
                         } else
-                            // todo ConcurrentModificationE
                         // PURPOSES_COLUMN колонка - HBox с расходом, состоит из choiceBox'ов и одного textField'а
                         if(columnIndex == PURPOSES_COLUMN){
                             ObservableList<Node> hBoxChildren = ((HBox) child).getChildren();
                             for( int i = 0; i < hBoxChildren.size(); i++){
                                 Node hBoxChild = hBoxChildren.get(i);
                                 if(hBoxChild instanceof ChoiceBox<?>){
-                                    if(((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof String) {
+                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof String) {
                                         ((ChoiceBox<String>) hBoxChild).setValue(expense.getExpenseType());
                                     } else
-                                    if(((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Employee){
+                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Employee){
                                         ((ChoiceBox<Employee>) hBoxChild).setValue(expense.getEmployee());
                                     } else
-                                    if (((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Store) {
+                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Store) {
                                         ((ChoiceBox<Store>) hBoxChild).setValue(
                                                 appData.getStores().stream().filter(item ->
                                                         item.getName().equals(expense.getStore())
@@ -111,15 +109,27 @@ public class ExpensesEditDialogController implements Initializable {
         int rowsNumber = expensesGridPane.getRowCount();
         int column = 0;
 
+        /*
+        * Строка состоит из : 1 - текстовое поле под сумму расхода
+        *
+        * */
 
         TextField textField = new TextField();
         textField.setPromptText("Введите сумму...");
         expensesGridPane.add(textField, column++, rowsNumber);
 
+        /*
+         * Строка состоит из : 2 - выбор статьи расходов в ChoiceBos'е
+         * Если выбрана "Зарплата", добавляются ещё три Box'а для выбора сотрудника, магазина, на котором он работал и даты выхода
+         * После выбора сотрудника или магазина дату можно выбрать только из ограниченного списка:
+         * Map<дата, магазин> - свой для каждого сотрудника
+         *
+         * */
 
         ObservableList<ChoiceBox<?>> choiceBoxesList = FXCollections.observableArrayList();
-        ChoiceBox<Employee> employee = new ChoiceBox<>(appData.getEmployees());
-        ChoiceBox<Store> store = new ChoiceBox<>(appData.getStores());
+
+        ChoiceBox<Employee> employee = new ChoiceBox<>(appData.getEmployees().filtered(Employee::isActive));
+        ChoiceBox<Store> store = new ChoiceBox<>(appData.getStores().filtered(Store::isActive));
         store.setValue(appData.getCurrentStore());
         ChoiceBox<LocalDate> date = new ChoiceBox<>();
 
@@ -148,7 +158,6 @@ public class ExpensesEditDialogController implements Initializable {
         choiceBoxesList.add(store);
         choiceBoxesList.add(date);
 
-        TextField commentTextField = new TextField();
 
         ChoiceBox<String> expenseType= new ChoiceBox<>(appData.getExpenseTypes());
         HBox hBox = new HBox();
@@ -168,12 +177,29 @@ public class ExpensesEditDialogController implements Initializable {
         });
 
         hBox.getChildren().add(expenseType);
+
+        /*
+         * Строка состоит из : 3 - текстовое поле под комментарий
+         *
+         * */
+
+        TextField commentTextField = new TextField();
         hBox.getChildren().add(commentTextField);
 
         HBox.setHgrow(commentTextField, Priority.ALWAYS);
         expensesGridPane.add(hBox, column++, rowsNumber);
 
+        /*
+         * Строка состоит из : 4 - красивый пиксельный карандаш, который ничего не делает
+         *
+         * */
+
         expensesGridPane.add(new ImageView("salaryCheck\\sources\\images\\pencil.png"), column++, rowsNumber);
+
+        /*
+         * Строка состоит из : 5 - манус, нажатие на который удаляет строку
+         *
+         * */
 
         ImageView minus = new ImageView("salaryCheck\\sources\\images\\minus.png");
         expensesGridPane.add(minus, column++, rowsNumber);

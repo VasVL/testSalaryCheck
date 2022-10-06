@@ -15,72 +15,34 @@ public class AppData {
     private Store currentStore;
 
 
-    private ObservableList<StoreTableRow> storeTable = FXCollections.observableArrayList();
+    private ObservableList<StoreTableRow> storeTable;
 
     /*
     * Следующие три листа: stores, employees, expenseTypes нужно сохранять в виде XML
     *
     * */
-
-    private ObservableList<Store> stores = FXCollections.observableArrayList(
-            //new Store("Магазин 1", 1200, 200, 0.06),
-            //new Store("Магазин 2", 1200, 200, 0.06),
-            //new Store("Магазин 3", 1200, 200, 0.06)
-    );
-
-    private ObservableList<Employee> employees = FXCollections.observableArrayList(
-            //new Employee("Васян"),
-            //new Employee("Мистер Пропер")
-    );
-
-    private ObservableList<String> expenseTypes = FXCollections.observableArrayList(
-            "Зарплата",
-            //"Бензин МГ",
-            //"Хоз. нужды",
-            "Другое:"
-    );
+    private ObservableList<Store> stores;
+    private ObservableList<Employee> employees;
+    private ObservableList<String> expenseTypes;
 
     private AppData() {
-        //Для начала сунем всё сюдой
-        if(stores.isEmpty()){
-            currentStore = new Store();//stores.get(0);
-        } else {
-            currentStore = stores.get(0);
-        }
 
-        /*for(int i = 0; i < 30; i++){
-            StoreTableRow storeTableRow_1 = new StoreTableRow();
-            StoreTableRow storeTableRow_2 = new StoreTableRow();
-            StoreTableRow storeTableRow_3 = new StoreTableRow();
+        storeTable = FXCollections.observableArrayList();
+        stores = FXCollections.observableArrayList();
+        employees = FXCollections.observableArrayList();
+        expenseTypes = FXCollections.observableArrayList(
+                "Зарплата",
+                "Другое:"
+        );
 
-            storeTableRow_1.addExpense(new Expense(100, expenseTypes.get(2)));
-            storeTableRow_1.addExpense(new Expense(200, expenseTypes.get(1)));
-            storeTableRow_1.setDate(LocalDate.now().minusDays(i));
-            storeTableRow_1.setEmployee(employees.get(0));
+        // Эта проверка здесь не имеет смысла, перенёс её в конструктор OverviewController'а
+//        if(stores.isEmpty()){
+//            currentStore = new Store();
+//        } else {
+//            currentStore = stores.get(0);
+//        }
 
-            storeTableRow_2.addExpense(new Expense(300, expenseTypes.get(2)));
-            storeTableRow_2.addExpense(new Expense(200, expenseTypes.get(3)));
-            storeTableRow_2.setDate(LocalDate.now().minusDays(i));
-            storeTableRow_2.setEmployee(employees.get(1));
-
-            storeTableRow_3.addExpense(new Expense(300, expenseTypes.get(1)));
-            storeTableRow_3.setDate(LocalDate.now().minusDays(i));
-            int random = (int)(Math.random()*2);
-            storeTableRow_3.setEmployee(employees.get(random));
-
-            // todo нужно ещё смотреть, чтобы смен на разных магазинах в один день у человека не было
-            employees.get(0).addWorkDay(LocalDate.now().minusDays(i), stores.get(0));
-            employees.get(1).addWorkDay(LocalDate.now().minusDays(i), stores.get(1));
-            employees.get(random).addWorkDay(LocalDate.now().minusDays(i), stores.get(0));
-
-
-            stores.get(0).addStoreTableRow(storeTableRow_1);
-            stores.get(1).addStoreTableRow(storeTableRow_2);
-            stores.get(2).addStoreTableRow(storeTableRow_3);
-            //storeTable.add(storeTableRow_1);
-        }*/
-
-        fillStoreTable();
+        //fillStoreTable();
     }
 
     public static AppData getInstance(){
@@ -101,31 +63,45 @@ public class AppData {
             if(store.equals(currentStore)){
                 storeTable.clear();
                 // Проверяем, если магазин только создан - Табличка пуста, и её нужно заполнить для начала датами
-                checkBlankStoreTable();
+                // перенёс проверку в конструктор магазина
+                //checkBlankStoreTable();
                 storeTable.addAll(currentStore.getStoreTable());
                 return;
             }
         }
     }
 
-    private void checkBlankStoreTable(){
-        if(currentStore.getStoreTable().size() == 0) {
-            for(int i = 0; i < 30; i++){
-                StoreTableRow storeTableRow = new StoreTableRow();
-                storeTableRow.setDate(LocalDate.now().minusDays(i));
-                currentStore.addStoreTableRow(storeTableRow);
-            }
-        }
-    }
+    // Перенёс в конструктор магазина
+//    private void checkBlankStoreTable(){
+//        if(currentStore.getStoreTable().size() == 0) {
+//            for(int i = 0; i < 30; i++){
+//                StoreTableRow storeTableRow = new StoreTableRow();
+//                storeTableRow.setDate(LocalDate.now().minusDays(i));
+//                currentStore.addStoreTableRow(storeTableRow);
+//            }
+//        }
+//    }
 
     public void calculateEmployeesWorkDays(){
         for(Employee employee : employees){
             for(Store store : stores){
                 for(StoreTableRow tableRow : store.getStoreTable()){
-                    if(tableRow.getEmployee().equals(employee)){
+                    if(tableRow.getEmployee().getName().equals(employee.getName())){
                         employee.addWorkDay(tableRow.getDate(), store);
                     }
                 }
+            }
+        }
+    }
+
+    // добавление новых дней в начало таблиц для всех магазинов
+    public void addDaysInTables(){
+
+        for(Store store : stores){
+            while(!store.getStoreTable().get(0).getDate().equals(LocalDate.now())){
+                StoreTableRow storeTableRow = new StoreTableRow();
+                storeTableRow.setDate(store.getStoreTable().get(0).getDate().plusDays(1));
+                store.getStoreTable().add(0, storeTableRow);
             }
         }
     }
@@ -166,6 +142,10 @@ public class AppData {
     @XmlElementWrapper(name = "expenseTypes")
     @XmlElement(name = "expenseType")
     public void setExpenseTypes(ObservableList<String> expenseTypes) {
+
         this.expenseTypes = expenseTypes;
+        if(!expenseTypes.contains("Зарплата")){
+            expenseTypes.add("Заралата");
+        }
     }
 }

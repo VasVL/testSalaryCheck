@@ -2,12 +2,9 @@ package salaryCheck.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import salaryCheck.LocalDateAdapter;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -15,12 +12,13 @@ public class Employee {
 
     private String name;
     // todo  подумать, нужно ли хранить это или можно рассчитывать каждый раз (пока хочу рассчитывать после инициализации XML-документа)
-
     private ObservableMap<LocalDate, Store> workDays;
 
     // Это не буду синхронизовать
 
     private Integer salaryBalance;
+
+    private boolean isActive;
 
     public Employee() {
         this("");
@@ -28,8 +26,9 @@ public class Employee {
 
     public Employee(String name) {
         this.name = name;
-        workDays = FXCollections.observableHashMap();
-        salaryBalance = 0;
+        this.workDays = FXCollections.observableHashMap();
+        this.salaryBalance = 0;
+        this.isActive = true;
     }
 
     public String getName() {
@@ -44,6 +43,15 @@ public class Employee {
     public ObservableMap<LocalDate, Store> getWorkDays() {
         return workDays;
     }
+
+    public boolean isActive() {
+        return isActive;
+    }
+    @XmlElement(name = "isActive")
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     @XmlTransient
     public void setWorkDays(ObservableMap<LocalDate, Store> workDays) {
         this.workDays = workDays;

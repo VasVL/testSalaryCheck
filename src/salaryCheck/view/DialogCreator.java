@@ -27,7 +27,7 @@ public class DialogCreator {
         stage.setScene(scene);
         stage.initOwner(owner);
         stage.initModality(Modality.WINDOW_MODAL);
-        stage.show();
+        //stage.show();
 
         return stage;
     }
@@ -45,10 +45,11 @@ public class DialogCreator {
         try {
             Stage stage = createDialog(loader, "Внесение расходов", new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
 
-
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
             expensesEditController.setRowIndex(indexRow);
+
+            stage.showAndWait();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,9 +64,11 @@ public class DialogCreator {
         try {
             Stage stage = createDialog(loader, "Редактирование магазина", owner, new Image("salaryCheck\\sources\\images\\store.png"));
 
-            StoreEditDialogController storeAddController = loader.getController();
-            storeAddController.setDialogStage(stage);
-            storeAddController.setTempStore(editingStore);
+            StoreEditDialogController storeEditController = loader.getController();
+            storeEditController.setDialogStage(stage);
+            storeEditController.setTempStore(editingStore);
+
+            stage.showAndWait();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,6 +95,8 @@ public class DialogCreator {
             employeeEditController.setDialogStage(stage);
             employeeEditController.setTempEmployee(employee);
 
+            stage.showAndWait();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,6 +121,8 @@ public class DialogCreator {
             expenseTypeEditController.setDialogStage(stage);
             expenseTypeEditController.setTempExpenseType(expenseType);
 
+            stage.showAndWait();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,6 +146,8 @@ public class DialogCreator {
             ListOverviewController listOverviewController = loader.getController();
             listOverviewController.setDialogStage(stage);
             listOverviewController.setStartTab(startTab);
+
+            stage.showAndWait();
 
         } catch (IOException e) {
             e.printStackTrace();

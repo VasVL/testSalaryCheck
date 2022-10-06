@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import java.time.LocalDate;
 
 public class Store {
 
@@ -12,6 +13,7 @@ public class Store {
     private Integer shiftPay;
     private Integer cleaningPay;
     private Double salesPercentage;
+    private boolean isActive;
 
 
     private ObservableList<StoreTableRow> storeTable;
@@ -20,6 +22,13 @@ public class Store {
 
         //this("Неизвестный магазин", 1200, 200, 0.06);
         this.storeTable = FXCollections.observableArrayList();
+        // todo здесь оставить добавлениетолько одной строки, и сделать кнопку для добавления сткрок
+        for(int i = 0; i < 30; i++){
+            StoreTableRow storeTableRow = new StoreTableRow();
+            storeTableRow.setDate(LocalDate.now().minusDays(i));
+            this.addStoreTableRow(storeTableRow);
+        }
+        this.isActive = true;
     }
 
     public Store(String name, Integer shiftPay, Integer cleaningPay, Double salesPercentage) {
@@ -73,7 +82,13 @@ public class Store {
         this.salesPercentage = salesPercentage;
     }
 
-
+    public boolean isActive() {
+        return isActive;
+    }
+    @XmlElement(name = "isActive")
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;

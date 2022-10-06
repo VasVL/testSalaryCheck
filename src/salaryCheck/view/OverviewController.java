@@ -76,16 +76,25 @@ public class OverviewController implements Initializable {
         appData = AppData.getInstance();
         dialogCreator = new DialogCreator();
         // todo
-        MainApp.loadPersonDataFromFile(new File("AppData.xml"));
-        appData.calculateEmployeesWorkDays();
+        SaveLoad.loadAppDataFromFile(new File("AppData.xml"));
+        if(!appData.getStores().isEmpty()) {
+            appData.setCurrentStore(appData.getStores().get(0));
+            appData.calculateEmployeesWorkDays();
+        } else {
+            appData.setCurrentStore(new Store());
+        }
     }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        storeComboBox.setItems(appData.getStores());
-        storeComboBox.setOnAction(event -> appData.setCurrentStore(storeComboBox.getValue()));
+        storeComboBox.setItems(appData.getStores().filtered(Store::isActive));
+        storeComboBox.setValue(appData.getCurrentStore());
+        storeComboBox.setOnAction(event -> {
+            storeComboBox.setItems(appData.getStores().filtered(Store::isActive));
+            appData.setCurrentStore(storeComboBox.getValue());
+        });
 
         storeTableView.setItems(appData.getStoreTable());
 
@@ -117,7 +126,7 @@ public class OverviewController implements Initializable {
         *
         * */
 
-        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees()));
+        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
         employeeTableColumn.setOnEditCommit(editEvent ->{
                 StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
                 // удаляем рабочий день у сотрудника, который был выбран до этого
@@ -169,7 +178,7 @@ public class OverviewController implements Initializable {
         addExpenseTypeMenuItem.setOnAction(event -> dialogCreator.showExpenseTypeEditDialog());
 
         // todo убрать повтор
-        selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+        selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
                 item -> {
                     MenuItem menuItem = new MenuItem(item.getName());
                     menuItem.setOnAction(actionEvent -> {
@@ -181,7 +190,7 @@ public class OverviewController implements Initializable {
         // setOnAction добавил, потому что без него при начальном пустом списке магазинов selectStoreMenu отказывался обновляться
         selectStoreMenu.setOnAction(event -> {
             selectStoreMenu.getItems().clear();
-            selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+            selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
                     item -> {
                         MenuItem menuItem = new MenuItem(item.getName());
                         menuItem.setOnAction(actionEvent -> {
@@ -194,7 +203,7 @@ public class OverviewController implements Initializable {
 
         selectStoreMenu.setOnShowing(event -> {
             selectStoreMenu.getItems().clear();
-            selectStoreMenu.getItems().addAll(appData.getStores().stream().map(
+            selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
                 item -> {
                     MenuItem menuItem = new MenuItem(item.getName());
                     menuItem.setOnAction(actionEvent -> {
@@ -229,7 +238,7 @@ public class OverviewController implements Initializable {
     @FXML
     private void handleOkButton(){
 
-        MainApp.savePersonDataToFile(new File("AppData.xml"));
+        SaveLoad.saveAppDataToFile(new File("AppData.xml"));
         MainApp.getPrimaryStage().close();
     }
 
