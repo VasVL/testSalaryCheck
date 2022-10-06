@@ -34,15 +34,6 @@ public class AppData {
                 "Зарплата",
                 "Другое:"
         );
-
-        // Эта проверка здесь не имеет смысла, перенёс её в конструктор OverviewController'а
-//        if(stores.isEmpty()){
-//            currentStore = new Store();
-//        } else {
-//            currentStore = stores.get(0);
-//        }
-
-        //fillStoreTable();
     }
 
     public static AppData getInstance(){
@@ -57,36 +48,22 @@ public class AppData {
         return instance;
     }
 
-    private void fillStoreTable(){
 
-        for(Store store : stores){
-            if(store.equals(currentStore)){
-                storeTable.clear();
-                // Проверяем, если магазин только создан - Табличка пуста, и её нужно заполнить для начала датами
-                // перенёс проверку в конструктор магазина
-                //checkBlankStoreTable();
-                storeTable.addAll(currentStore.getStoreTable());
-                return;
-            }
-        }
-    }
-
-    // Перенёс в конструктор магазина
-//    private void checkBlankStoreTable(){
-//        if(currentStore.getStoreTable().size() == 0) {
-//            for(int i = 0; i < 30; i++){
-//                StoreTableRow storeTableRow = new StoreTableRow();
-//                storeTableRow.setDate(LocalDate.now().minusDays(i));
-//                currentStore.addStoreTableRow(storeTableRow);
-//            }
-//        }
-//    }
-
-    public void calculateEmployeesWorkDays(){
+    // В итоге этот метод перезаписывает везде сотрудников на тех, что есть в списке
+    // todo проблема: метод отвечает за два разных действия:
+    //  - берёт сотрудников, упоминаемых в таблицах магазинов и перезаписывает на таких же, но которые хранятся в списке
+    //  - считает рабочие дни сотрудников
+    public void setEmployeesWorkDays(){ // todo сюда же добавить подсчёт остатка по зп
         for(Employee employee : employees){
             for(Store store : stores){
                 for(StoreTableRow tableRow : store.getStoreTable()){
+                    for(Expense expense : tableRow.getExpenses()){
+                        if(expense.getEmployee() != null && expense.getEmployee().getName().equals(employee.getName())){
+                            expense.setEmployee(employee);
+                        }
+                    }
                     if(tableRow.getEmployee().getName().equals(employee.getName())){
+                        tableRow.setEmployee(employee);
                         employee.addWorkDay(tableRow.getDate(), store);
                     }
                 }
@@ -95,13 +72,24 @@ public class AppData {
     }
 
     // добавление новых дней в начало таблиц для всех магазинов
-    public void addDaysInTables(){
+    public void autoAddDaysInTables(){
 
         for(Store store : stores){
             while(!store.getStoreTable().get(0).getDate().equals(LocalDate.now())){
                 StoreTableRow storeTableRow = new StoreTableRow();
                 storeTableRow.setDate(store.getStoreTable().get(0).getDate().plusDays(1));
                 store.getStoreTable().add(0, storeTableRow);
+            }
+        }
+    }
+
+    private void fillStoreTable(){
+
+        for(Store store : stores){
+            if(store.equals(currentStore)){
+                storeTable.clear();
+                storeTable.addAll(currentStore.getStoreTable());
+                return;
             }
         }
     }
@@ -145,7 +133,7 @@ public class AppData {
 
         this.expenseTypes = expenseTypes;
         if(!expenseTypes.contains("Зарплата")){
-            expenseTypes.add("Заралата");
+            expenseTypes.add("Зарплата");
         }
     }
 }

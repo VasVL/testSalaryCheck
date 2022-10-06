@@ -59,7 +59,7 @@ public class OverviewController implements Initializable {
     private TableColumn<StoreTableRow, Integer> cashBalanceTableColumn;
 
     @FXML
-    private TableColumn<StoreTableRow, String/*ObservableList<Expense>*/> expensesTableColumn;
+    private TableColumn<StoreTableRow, String> expensesTableColumn;
 
 
     // Ссылка на данные приложения
@@ -79,7 +79,7 @@ public class OverviewController implements Initializable {
         SaveLoad.loadAppDataFromFile(new File("AppData.xml"));
         if(!appData.getStores().isEmpty()) {
             appData.setCurrentStore(appData.getStores().get(0));
-            appData.calculateEmployeesWorkDays();
+            appData.setEmployeesWorkDays();
         } else {
             appData.setCurrentStore(new Store());
         }
@@ -135,7 +135,8 @@ public class OverviewController implements Initializable {
                 }
                 // добавляем рабочий день новому выбранному сотруднику
                 editEvent.getNewValue().addWorkDay(currentRow.getDate(), appData.getCurrentStore());
-                currentRow.setEmployee(editEvent.getNewValue()); } );
+                currentRow.setEmployee(editEvent.getNewValue());
+        } );
 
 
         allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
@@ -167,10 +168,20 @@ public class OverviewController implements Initializable {
         });
 
 
-        // Файл -> Магазины / Продавцы / Статьи расходов
-        storesMenuItem.setOnAction(event -> dialogCreator.showListOverview(0));
-        employeesMenuItem.setOnAction(event -> dialogCreator.showListOverview(1));
-        expenseTypesMenuItem.setOnAction(event -> dialogCreator.showListOverview(2));
+        // Файл -> Новое окно: Магазины / Продавцы / Статьи расходов
+        // Обновляем список сотрудников для ComboBox'ов в таблице после закрытия нового окна
+        storesMenuItem.setOnAction(event -> {
+            dialogCreator.showListOverview(0);
+            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
+        });
+        employeesMenuItem.setOnAction(event -> {
+            dialogCreator.showListOverview(1);
+            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
+        });
+        expenseTypesMenuItem.setOnAction(event -> {
+            dialogCreator.showListOverview(2);
+            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
+        });
 
         // файл -> Добавить...
         addStoreMenuItem.setOnAction(event -> dialogCreator.showStoreEditDialog());

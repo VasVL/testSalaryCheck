@@ -60,7 +60,7 @@ public abstract class SaveLoad {
             appData = (AppData) um.unmarshal(file);
 
             // добавление новых дней в начало таблиц всех магазинов
-            appData.addDaysInTables();
+            appData.autoAddDaysInTables();
 
             // Сохраняем путь к файлу в реестре.
             setTableFilePath(file);

@@ -43,8 +43,8 @@ public class DialogCreator {
     public void showExpensesEditDialog(int indexRow){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Внесение расходов", new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
 
+            Stage stage = createDialog(loader, "Внесение расходов", new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
             expensesEditController.setRowIndex(indexRow);

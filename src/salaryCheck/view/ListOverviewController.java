@@ -1,7 +1,5 @@
 package salaryCheck.view;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -13,7 +11,6 @@ import salaryCheck.model.Store;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class ListOverviewController implements Initializable {
 

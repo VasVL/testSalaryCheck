@@ -73,26 +73,29 @@ public class ExpensesEditDialogController implements Initializable {
                         // PURPOSES_COLUMN колонка - HBox с расходом, состоит из choiceBox'ов и одного textField'а
                         if(columnIndex == PURPOSES_COLUMN){
                             ObservableList<Node> hBoxChildren = ((HBox) child).getChildren();
-                            for( int i = 0; i < hBoxChildren.size(); i++){
-                                Node hBoxChild = hBoxChildren.get(i);
-                                if(hBoxChild instanceof ChoiceBox<?>){
-                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof String) {
-                                        ((ChoiceBox<String>) hBoxChild).setValue(expense.getExpenseType());
-                                    } else
-                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Employee){
-                                        ((ChoiceBox<Employee>) hBoxChild).setValue(expense.getEmployee());
-                                    } else
-                                    if( ((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof Store) {
-                                        ((ChoiceBox<Store>) hBoxChild).setValue(
-                                                appData.getStores().stream().filter(item ->
-                                                        item.getName().equals(expense.getStore())
-                                                ).findAny().orElse(null));
-                                    } else
-                                    if (((ChoiceBox<?>)hBoxChild).getItems().get(0) instanceof LocalDate) {
-                                        ((ChoiceBox<LocalDate>) hBoxChild).setValue(expense.getDate());
+
+                            // TODO проблема: Когда открывается окно редактирования расходов, если
+                            //  они были загружены из XML,обработчик событий вызывается ?дважды? и кидает исключение
+                            ((ChoiceBox<String>) hBoxChildren.get(0)).setValue(expense.getExpenseType());
+
+                            if(expense.getExpenseType().equals("Зарплата")) {
+
+                                for (int i = 1; i < hBoxChildren.size(); i++) {
+                                    Node hBoxChild = hBoxChildren.get(i);
+                                    if (hBoxChild instanceof ChoiceBox<?>) {
+                                        if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof Employee) {
+                                            ((ChoiceBox<Employee>) hBoxChild).setValue(expense.getEmployee());
+                                        } else if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof Store) {
+                                            ((ChoiceBox<Store>) hBoxChild).setValue(
+                                                    appData.getStores().stream().filter(item ->
+                                                            item.getName().equals(expense.getStore())
+                                                    ).findAny().orElse(null));
+                                        } else if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof LocalDate) {
+                                            ((ChoiceBox<LocalDate>) hBoxChild).setValue(expense.getDate());
+                                        }
+                                    } else if (hBoxChild instanceof TextField && expense.getComment() != null) {
+                                        ((TextField) hBoxChild).setText(expense.getComment());
                                     }
-                                } else if(hBoxChild instanceof TextField && expense.getComment() != null){
-                                    ((TextField)hBoxChild).setText(expense.getComment());
                                 }
                             }
                         }
@@ -119,67 +122,69 @@ public class ExpensesEditDialogController implements Initializable {
         expensesGridPane.add(textField, column++, rowsNumber);
 
         /*
-         * Строка состоит из : 2 - выбор статьи расходов в ChoiceBos'е
+         * Строка состоит из : 2.1 - выбор статьи расходов в ChoiceBos'е
          * Если выбрана "Зарплата", добавляются ещё три Box'а для выбора сотрудника, магазина, на котором он работал и даты выхода
          * После выбора сотрудника или магазина дату можно выбрать только из ограниченного списка:
          * Map<дата, магазин> - свой для каждого сотрудника
+         * Все ChoiceBox'ы объединены в один HBox
          *
          * */
 
         ObservableList<ChoiceBox<?>> choiceBoxesList = FXCollections.observableArrayList();
 
-        ChoiceBox<Employee> employee = new ChoiceBox<>(appData.getEmployees().filtered(Employee::isActive));
-        ChoiceBox<Store> store = new ChoiceBox<>(appData.getStores().filtered(Store::isActive));
-        store.setValue(appData.getCurrentStore());
-        ChoiceBox<LocalDate> date = new ChoiceBox<>();
+        ChoiceBox<Employee> employeeChoiceBox = new ChoiceBox<>(appData.getEmployees().filtered(Employee::isActive));
+        ChoiceBox<Store> storeChoiceBox = new ChoiceBox<>(appData.getStores().filtered(Store::isActive));
+        storeChoiceBox.setValue(appData.getCurrentStore());
+        ChoiceBox<LocalDate> dateChoiceBox = new ChoiceBox<>();
 
         // todo одинаковые лямбды надо вынести отдельно
-        store.setOnAction(actionEvent ->
-                date.setItems( FXCollections.observableArrayList(
-                        employee.getValue().getWorkDays().entrySet().stream().filter(entry ->
-                                entry.getValue().equals(store.getValue())
+        storeChoiceBox.setOnAction(actionEvent ->
+                dateChoiceBox.setItems( FXCollections.observableArrayList(
+                        employeeChoiceBox.getValue().getWorkDays().entrySet().stream().filter(entry ->
+                                entry.getValue().equals(storeChoiceBox.getValue())
                         ).map(Map.Entry::getKey).toList()
                 )));
 
         // todo селать проверку зп
-        employee.setOnAction( actionEvent ->
-                date.setItems( FXCollections.observableArrayList(
-                        employee.getValue().getWorkDays().entrySet().stream().filter(entry ->
-                                entry.getValue().equals(store.getValue())
+        employeeChoiceBox.setOnAction( actionEvent ->
+                dateChoiceBox.setItems( FXCollections.observableArrayList(
+                        employeeChoiceBox.getValue().getWorkDays().entrySet().stream().filter(entry ->
+                                entry.getValue().equals(storeChoiceBox.getValue())
                         ).map(Map.Entry::getKey).toList()
                 )));
 
 
-        employee.setMinWidth(80);
-        store.setMinWidth(80);
-        date.setMinWidth(80);
+        employeeChoiceBox.setMinWidth(80);
+        storeChoiceBox.setMinWidth(80);
+        dateChoiceBox.setMinWidth(80);
 
-        choiceBoxesList.add(employee);
-        choiceBoxesList.add(store);
-        choiceBoxesList.add(date);
+        choiceBoxesList.add( employeeChoiceBox );
+        choiceBoxesList.add( storeChoiceBox );
+        choiceBoxesList.add( dateChoiceBox );
 
 
-        ChoiceBox<String> expenseType= new ChoiceBox<>(appData.getExpenseTypes());
+        ChoiceBox<String> expenseTypeChoiceBox= new ChoiceBox<>(appData.getExpenseTypes());
         HBox hBox = new HBox();
-        expenseType.setOnAction(new EventHandler<ActionEvent>() {
+        hBox.getChildren().add(expenseTypeChoiceBox);
+        expenseTypeChoiceBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
 
-                if(expenseType.getValue().equals("Зарплата")){
+                if(expenseTypeChoiceBox.getValue().equals("Зарплата")){
                     hBox.getChildren().addAll(1, choiceBoxesList);
                 } else {
-                    // костыль todo
-                    if(hBox.getChildren().size() > choiceBoxesList.size() + 1) {
-                        hBox.getChildren().remove(1, choiceBoxesList.size() + 1);
+                    if(hBox.getChildren().contains(employeeChoiceBox)){
+                        hBox.getChildren().removeAll(choiceBoxesList);
                     }
                 }
             }
         });
 
-        hBox.getChildren().add(expenseType);
+        //hBox.getChildren().add(expenseTypeChoiceBox);
 
         /*
-         * Строка состоит из : 3 - текстовое поле под комментарий
+         * Строка состоит из : 2.2 - текстовое поле под комментарий
+         * Комментарий добавлен в HBox
          *
          * */
 
@@ -190,14 +195,14 @@ public class ExpensesEditDialogController implements Initializable {
         expensesGridPane.add(hBox, column++, rowsNumber);
 
         /*
-         * Строка состоит из : 4 - красивый пиксельный карандаш, который ничего не делает
+         * Строка состоит из : 3 - красивый пиксельный карандаш, который ничего не делает
          *
          * */
 
         expensesGridPane.add(new ImageView("salaryCheck\\sources\\images\\pencil.png"), column++, rowsNumber);
 
         /*
-         * Строка состоит из : 5 - манус, нажатие на который удаляет строку
+         * Строка состоит из : 4 - манус, нажатие на который удаляет строку
          *
          * */
 
