@@ -24,7 +24,6 @@ public class EmployeeEditDialogController {
 
         isAlreadyExist = true;
         employeeIndex = -1;
-        //tempEmployee = new Employee();
         appData = AppData.getInstance();
     }
 

@@ -35,7 +35,7 @@ public class MainApp extends Application {
             OverviewController controller = loader.getController();
             // todo setAppData()
             //appData = AppData.getInstance();
-            controller.setMainApp(this);
+            //controller.setMainApp(this);
 
             Scene scene = new Scene(root);
             mainPrimaryStage = primaryStage;

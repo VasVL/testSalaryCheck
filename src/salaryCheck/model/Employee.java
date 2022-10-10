@@ -1,12 +1,13 @@
 package salaryCheck.model;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.LocalDate;
-import java.util.Map;
 
 public class Employee {
 
@@ -18,7 +19,7 @@ public class Employee {
 
     private Integer salaryBalance;
 
-    private boolean isActive;
+    private BooleanProperty isActive;
 
     public Employee() {
         this("");
@@ -28,7 +29,7 @@ public class Employee {
         this.name = name;
         this.workDays = FXCollections.observableHashMap();
         this.salaryBalance = 0;
-        this.isActive = true;
+        this.isActive = new SimpleBooleanProperty(true);
     }
 
     public String getName() {
@@ -44,12 +45,17 @@ public class Employee {
         return workDays;
     }
 
-    public boolean isActive() {
+    @XmlElement(name = "isActive")
+    public boolean getActive() {
+        return isActive.get();
+    }
+
+    public BooleanProperty isActiveProperty() {
         return isActive;
     }
-    @XmlElement(name = "isActive")
-    public void setActive(boolean active) {
-        isActive = active;
+
+    public void setActive(boolean isActive) {
+        this.isActive.set(isActive);
     }
 
     @XmlTransient
@@ -68,24 +74,6 @@ public class Employee {
     @XmlTransient
     public Integer getSalaryBalance() {
 
-        salaryBalance = 0;
-        for(Map.Entry<LocalDate, Store> entry : workDays.entrySet()){
-            Store store = entry.getValue();
-            StoreTableRow tableRow = store.getStoreTable().stream().filter(row -> row.getDate().equals(entry.getKey())).findAny().orElse(null);
-
-            if (tableRow != null) {
-                salaryBalance += store.getShiftPay() +
-                        store.getCleaningPay() +
-                        (int)(store.getSalesPercentage() * tableRow.getAllFee());
-
-                // todo тут неверно: смотрит расходы только в свои рабочие дни
-                for(Expense expense : tableRow.getExpenses()){
-                    if(expense.getExpenseType().equals("Зарплата") && expense.getEmployee().equals(this)){
-                        salaryBalance -= expense.getAmount();
-                    }
-                }
-            }
-        }
         return salaryBalance;
     }
 

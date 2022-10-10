@@ -1,5 +1,7 @@
 package salaryCheck.model;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -13,8 +15,8 @@ public class Store {
     private Integer shiftPay;
     private Integer cleaningPay;
     private Double salesPercentage;
-    private boolean isActive;
-
+    //private boolean isActive;
+    private BooleanProperty isActive;
 
     private ObservableList<StoreTableRow> storeTable;
 
@@ -28,7 +30,8 @@ public class Store {
             storeTableRow.setDate(LocalDate.now().minusDays(i));
             this.addStoreTableRow(storeTableRow);
         }
-        this.isActive = true;
+        //this.isActive = true;
+        this.isActive = new SimpleBooleanProperty(true);
     }
 
     public Store(String name, Integer shiftPay, Integer cleaningPay, Double salesPercentage) {
@@ -82,13 +85,18 @@ public class Store {
         this.salesPercentage = salesPercentage;
     }
 
-    public boolean isActive() {
+
+
+    @XmlElement(name = "isActive")
+    public boolean getActive() {
+        return isActive.get();
+    }
+    public BooleanProperty isActiveProperty() {
         return isActive;
     }
-    @XmlElement(name = "isActive")
-    public void setActive(boolean active) {
-        isActive = active;
-    }
+    public void setActive(boolean active) {isActiveProperty().set(active);}
+
+
 
     public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;

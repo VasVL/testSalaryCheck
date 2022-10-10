@@ -8,7 +8,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import salaryCheck.MainApp;
 import salaryCheck.model.Employee;
+import salaryCheck.model.ExpenseType;
 import salaryCheck.model.Store;
+import salaryCheck.model.StoreTableRow;
 
 import java.io.IOException;
 
@@ -27,7 +29,6 @@ public class DialogCreator {
         stage.setScene(scene);
         stage.initOwner(owner);
         stage.initModality(Modality.WINDOW_MODAL);
-        //stage.show();
 
         return stage;
     }
@@ -40,16 +41,16 @@ public class DialogCreator {
 
 
     // Очень не нравится, что все эти методы как под копирку одинаковые
-    public void showExpensesEditDialog(int indexRow){
+    public void showExpensesEditDialog(StoreTableRow tableRow){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
         try {
 
-            Stage stage = createDialog(loader, "Внесение расходов", new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
+            Stage stage = createDialog(loader, "Внесение расходов за " + tableRow.getDate(), new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
-            expensesEditController.setRowIndex(indexRow);
+            expensesEditController.setRow(tableRow);
 
-            stage.showAndWait();
+            stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,7 +113,7 @@ public class DialogCreator {
 
 
 
-    public void showExpenseTypeEditDialog(Stage owner, String expenseType){
+    public void showExpenseTypeEditDialog(Stage owner, ExpenseType expenseType){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpenseTypeEditDialog.fxml"));
         try {
             Stage stage = createDialog(loader, "Добавление статьи расходов", owner, new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
@@ -129,7 +130,7 @@ public class DialogCreator {
     }
 
     public void showExpenseTypeEditDialog(Stage owner){
-        showExpenseTypeEditDialog(owner, null);
+        showExpenseTypeEditDialog(owner, new ExpenseType());
     }
 
     public void showExpenseTypeEditDialog(){
@@ -147,7 +148,7 @@ public class DialogCreator {
             listOverviewController.setDialogStage(stage);
             listOverviewController.setStartTab(startTab);
 
-            stage.showAndWait();
+            stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();

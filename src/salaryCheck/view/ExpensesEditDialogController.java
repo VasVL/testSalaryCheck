@@ -27,8 +27,7 @@ public class ExpensesEditDialogController implements Initializable {
     private final int AMOUNT_COLUMN = 0;
     private final int PURPOSES_COLUMN = 1;
     private final AppData appData;
-
-    private int rowIndex;
+    private StoreTableRow storeTableRow;
 
     private Stage dialogStage;
 
@@ -36,6 +35,7 @@ public class ExpensesEditDialogController implements Initializable {
     private GridPane expensesGridPane;
 
     public ExpensesEditDialogController() {
+
         appData = AppData.getInstance();
     }
 
@@ -48,17 +48,18 @@ public class ExpensesEditDialogController implements Initializable {
         this.dialogStage = dialogStage;
     }
 
-    public void setRowIndex(int rowIndex) {
+    public void setRow(StoreTableRow storeTableRow) {
 
-        this.rowIndex = rowIndex;
+        this.storeTableRow = storeTableRow;
         fillGridPane();
     }
 
     private void fillGridPane(){
-        ObservableList<Expense> expenses = appData.getStoreTable().get(rowIndex).getExpenses();
+
+        ObservableList<Expense> expenses = storeTableRow.getExpenses();
 
         for(Expense expense : expenses){
-            addGridRow();
+            addGridRow(false);
             ObservableList<Node> children = expensesGridPane.getChildren();
             int lastRowNumber = expensesGridPane.getRowCount() - 1;
 
@@ -76,28 +77,18 @@ public class ExpensesEditDialogController implements Initializable {
 
                             // TODO проблема: Когда открывается окно редактирования расходов, если
                             //  они были загружены из XML,обработчик событий вызывается ?дважды? и кидает исключение
-                            ((ChoiceBox<String>) hBoxChildren.get(0)).setValue(expense.getExpenseType());
+                            ((ChoiceBox<ExpenseType>) hBoxChildren.get(0)).setValue(expense.getExpenseType());
 
-                            if(expense.getExpenseType().equals("Зарплата")) {
+                            if(expense.getExpenseType().getName().equals("Зарплата")) {
 
-                                for (int i = 1; i < hBoxChildren.size(); i++) {
-                                    Node hBoxChild = hBoxChildren.get(i);
-                                    if (hBoxChild instanceof ChoiceBox<?>) {
-                                        if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof Employee) {
-                                            ((ChoiceBox<Employee>) hBoxChild).setValue(expense.getEmployee());
-                                        } else if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof Store) {
-                                            ((ChoiceBox<Store>) hBoxChild).setValue(
-                                                    appData.getStores().stream().filter(item ->
-                                                            item.getName().equals(expense.getStore())
-                                                    ).findAny().orElse(null));
-                                        } else if (((ChoiceBox<?>) hBoxChild).getItems().get(0) instanceof LocalDate) {
-                                            ((ChoiceBox<LocalDate>) hBoxChild).setValue(expense.getDate());
-                                        }
-                                    } else if (hBoxChild instanceof TextField && expense.getComment() != null) {
-                                        ((TextField) hBoxChild).setText(expense.getComment());
-                                    }
-                                }
+                                ((ChoiceBox<Employee>) hBoxChildren.get(1)).setValue(expense.getEmployee());
+                                ((ChoiceBox<Store>) hBoxChildren.get(2)).setValue(
+                                        appData.getStores().stream().filter(item ->
+                                                item.getName().equals(expense.getStore())
+                                        ).findAny().orElse(null));
+                                ((ChoiceBox<LocalDate>) hBoxChildren.get(3)).setValue(expense.getDate());
                             }
+                            ((TextField) hBoxChildren.get( hBoxChildren.size() - 1 )).setText(expense.getComment());
                         }
                     }
                 }
@@ -106,7 +97,11 @@ public class ExpensesEditDialogController implements Initializable {
     }
 
     @FXML
-    public void addGridRow(){
+    private void addGridRow(){
+        addGridRow(true);
+    }
+
+    private void addGridRow(boolean isEmpty){
         // todo возможно лучше будет сделать так: добавить здесь прямо при создании changeListener'ы ко всем элементам,
         //  которые будут перезаписывать определённые внутри класса глобальные переменные, типа списка расходов
         int rowsNumber = expensesGridPane.getRowCount();
@@ -132,10 +127,24 @@ public class ExpensesEditDialogController implements Initializable {
 
         ObservableList<ChoiceBox<?>> choiceBoxesList = FXCollections.observableArrayList();
 
-        ChoiceBox<Employee> employeeChoiceBox = new ChoiceBox<>(appData.getEmployees().filtered(Employee::isActive));
-        ChoiceBox<Store> storeChoiceBox = new ChoiceBox<>(appData.getStores().filtered(Store::isActive));
-        storeChoiceBox.setValue(appData.getCurrentStore());
+        ChoiceBox<Employee> employeeChoiceBox = new ChoiceBox<>();
+        ChoiceBox<Store> storeChoiceBox = new ChoiceBox<>();
         ChoiceBox<LocalDate> dateChoiceBox = new ChoiceBox<>();
+        ChoiceBox<ExpenseType> expenseTypeChoiceBox = new ChoiceBox<>();
+        HBox hBox = new HBox();
+
+        if(isEmpty) {
+            employeeChoiceBox.setItems(appData.getEmployees().filtered(Employee::getActive));
+            storeChoiceBox.setItems(appData.getStores().filtered(Store::getActive));
+            expenseTypeChoiceBox.setItems(appData.getExpenseTypes().filtered(ExpenseType::getActive));
+        } else {
+            employeeChoiceBox.setItems(appData.getEmployees());
+            storeChoiceBox.setItems(appData.getStores());
+            expenseTypeChoiceBox.setItems(appData.getExpenseTypes());
+        }
+
+        storeChoiceBox.setValue(appData.getCurrentStore());
+
 
         // todo одинаковые лямбды надо вынести отдельно
         storeChoiceBox.setOnAction(actionEvent ->
@@ -163,14 +172,12 @@ public class ExpensesEditDialogController implements Initializable {
         choiceBoxesList.add( dateChoiceBox );
 
 
-        ChoiceBox<String> expenseTypeChoiceBox= new ChoiceBox<>(appData.getExpenseTypes());
-        HBox hBox = new HBox();
         hBox.getChildren().add(expenseTypeChoiceBox);
         expenseTypeChoiceBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
 
-                if(expenseTypeChoiceBox.getValue().equals("Зарплата")){
+                if(expenseTypeChoiceBox.getValue().getName().equals("Зарплата")){
                     hBox.getChildren().addAll(1, choiceBoxesList);
                 } else {
                     if(hBox.getChildren().contains(employeeChoiceBox)){
@@ -179,8 +186,6 @@ public class ExpensesEditDialogController implements Initializable {
                 }
             }
         });
-
-        //hBox.getChildren().add(expenseTypeChoiceBox);
 
         /*
          * Строка состоит из : 2.2 - текстовое поле под комментарий
@@ -212,14 +217,14 @@ public class ExpensesEditDialogController implements Initializable {
     }
 
     @FXML
-    public void removeLastGridRow(){
+    private void removeLastGridRow(){
         if(expensesGridPane.getRowCount() > 1) {
             removeGridRow(expensesGridPane.getRowCount() - 1);
         }
     }
 
     @FXML
-    public void removeGridRow(int rowNumber){
+    private void removeGridRow(int rowNumber){
         ObservableList<Node> children = expensesGridPane.getChildren();
         Iterator<Node> iter = children.iterator();
         while(iter.hasNext()){
@@ -241,7 +246,7 @@ public class ExpensesEditDialogController implements Initializable {
 
     // todo здесь вставить проверку на null
     @FXML
-    public boolean handleApply(){
+    private boolean handleApply(){
 
         ObservableList<Expense> tempExpenses = FXCollections.observableArrayList();
 
@@ -265,8 +270,8 @@ public class ExpensesEditDialogController implements Initializable {
                     StringBuilder inputStringBuilder = new StringBuilder("");
                     for(Node hBoxChild : hBoxChildren){
                         if(hBoxChild instanceof ChoiceBox<?>){
-                            if(((ChoiceBox<?>)hBoxChild).getValue() instanceof String) {
-                                tempExpense.setExpenseType(((ChoiceBox<String>)hBoxChild).getValue());
+                            if(((ChoiceBox<?>)hBoxChild).getValue() instanceof ExpenseType) {
+                                tempExpense.setExpenseType(((ChoiceBox<ExpenseType>)hBoxChild).getValue());
                             } else
                             if(((ChoiceBox<?>)hBoxChild).getValue() instanceof Employee){
                                 tempExpense.setEmployee(((ChoiceBox<Employee>)hBoxChild).getValue());
@@ -284,11 +289,11 @@ public class ExpensesEditDialogController implements Initializable {
                         }
                     }
 
-                    if(tempExpense.getExpenseType().equals("")){
+                    if(tempExpense.getExpenseType().getName().equals("")){
                         return false;
                     }
 
-                    if(tempExpense.getExpenseType().equals("Зарплата") &&
+                    if(tempExpense.getExpenseType().getName().equals("Зарплата") &&
                             (tempExpense.getEmployee() == null || tempExpense.getDate() == null) )
                     {
                         return false;
@@ -303,14 +308,14 @@ public class ExpensesEditDialogController implements Initializable {
             }
         }
 
-        appData.getStoreTable().get(rowIndex).getExpenses().clear();
-        appData.getStoreTable().get(rowIndex).addAllExpenses(tempExpenses);
+        storeTableRow.getExpenses().clear();
+        storeTableRow.addAllExpenses(tempExpenses);
 
         return true;
     }
 
     @FXML
-    public void handleOK(){
+    private void handleOK(){
 
         if(handleApply()) {
             dialogStage.close();
@@ -318,7 +323,7 @@ public class ExpensesEditDialogController implements Initializable {
     }
 
     @FXML
-    public void handleClose(){
+    private void handleClose(){
         dialogStage.close();
     }
 

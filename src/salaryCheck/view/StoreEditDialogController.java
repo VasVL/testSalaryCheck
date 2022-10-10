@@ -97,6 +97,7 @@ public class StoreEditDialogController {
 
         if(handleApply()) {
             if(!isAlreadyExist){
+
                 appData.getStores().add(tempStore);
                 // Если что, могём переключаться на только что созданную талицу
                 //appData.setCurrentStore(tempStore);

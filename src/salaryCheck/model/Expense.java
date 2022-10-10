@@ -10,7 +10,8 @@ public class Expense {
     private Integer amount;
     private String purpose;
 
-    private String expenseType;
+    //private String expenseType;
+    private ExpenseType expenseType;
     private Employee employee;
     private String store;    // Здесь переделываю Store в String из-за ошибки сериализации: возникает бесконечный цикл
     //todo возможность расчёта зп за месяц
@@ -24,7 +25,8 @@ public class Expense {
 
     public Expense(Integer amount, String type) {
         this.amount = amount;
-        this.expenseType = type;
+        //this.expenseType = type;
+        this.expenseType = new ExpenseType(type);
         this.purpose = type;
     }
 
@@ -48,11 +50,11 @@ public class Expense {
 
 
 
-    public String getExpenseType() {
+    public ExpenseType getExpenseType() {
         return expenseType;
     }
 
-    public void setExpenseType(String expenseType) {
+    public void setExpenseType(ExpenseType expenseType) {
         this.expenseType = expenseType;
     }
 

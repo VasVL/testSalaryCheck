@@ -1,5 +1,6 @@
 package salaryCheck.model;
 
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -23,17 +24,14 @@ public class AppData {
     * */
     private ObservableList<Store> stores;
     private ObservableList<Employee> employees;
-    private ObservableList<String> expenseTypes;
+    private ObservableList<ExpenseType> expenseTypes;
 
     private AppData() {
 
         storeTable = FXCollections.observableArrayList();
-        stores = FXCollections.observableArrayList();
-        employees = FXCollections.observableArrayList();
-        expenseTypes = FXCollections.observableArrayList(
-                "Зарплата",
-                "Другое:"
-        );
+        stores = FXCollections.observableArrayList(store -> new Observable[]{store.isActiveProperty()});
+        employees = FXCollections.observableArrayList(employee -> new Observable[]{employee.isActiveProperty()});
+        expenseTypes = FXCollections.observableArrayList(expenseType -> new Observable[]{expenseType.isActiveProperty()});
     }
 
     public static AppData getInstance(){
@@ -49,22 +47,33 @@ public class AppData {
     }
 
 
-    // В итоге этот метод перезаписывает везде сотрудников на тех, что есть в списке
-    // todo проблема: метод отвечает за два разных действия:
-    //  - берёт сотрудников, упоминаемых в таблицах магазинов и перезаписывает на таких же, но которые хранятся в списке
-    //  - считает рабочие дни сотрудников
-    public void setEmployeesWorkDays(){ // todo сюда же добавить подсчёт остатка по зп
-        for(Employee employee : employees){
-            for(Store store : stores){
-                for(StoreTableRow tableRow : store.getStoreTable()){
+    public void fillStoreTables(){ // todo сюда же добавить подсчёт остатка по зп
+
+        if(!isExpenseTypesContains("Зарплата")){
+            expenseTypes.add(0, new ExpenseType("Зарплата"));
+        }
+
+        for(Store store : stores){
+            for(StoreTableRow tableRow : store.getStoreTable()){
+                for(Employee employee : employees){
                     for(Expense expense : tableRow.getExpenses()){
+                        for(ExpenseType expenseType : expenseTypes){
+                            if( expense.getExpenseType().getName().equals(expenseType.getName()) ){
+                                expense.setExpenseType(expenseType);
+                            }
+                        }
                         if(expense.getEmployee() != null && expense.getEmployee().getName().equals(employee.getName())){
                             expense.setEmployee(employee);
+                            employee.addSalaryBalance(-expense.getAmount());
                         }
                     }
-                    if(tableRow.getEmployee().getName().equals(employee.getName())){
+                    if( tableRow.getEmployee().getName().equals(employee.getName()) ){
                         tableRow.setEmployee(employee);
                         employee.addWorkDay(tableRow.getDate(), store);
+                        employee.addSalaryBalance(
+                                store.getShiftPay() +
+                                store.getCleaningPay() +
+                                (int)(store.getSalesPercentage() * tableRow.getAllFee()) );
                     }
                 }
             }
@@ -124,16 +133,24 @@ public class AppData {
         this.employees = employees;
     }
 
-    public ObservableList<String> getExpenseTypes() {
+    public ObservableList<ExpenseType> getExpenseTypes() {
         return expenseTypes;
     }
     @XmlElementWrapper(name = "expenseTypes")
     @XmlElement(name = "expenseType")
-    public void setExpenseTypes(ObservableList<String> expenseTypes) {
+    public void setExpenseTypes(ObservableList<ExpenseType> expenseTypes) {
 
         this.expenseTypes = expenseTypes;
-        if(!expenseTypes.contains("Зарплата")){
-            expenseTypes.add("Зарплата");
+    }
+
+    private boolean isExpenseTypesContains(String str){
+
+        for(ExpenseType expenseType : expenseTypes){
+            if(expenseType.getName().equals( str )){
+                return true;
+            }
         }
+
+        return false;
     }
 }

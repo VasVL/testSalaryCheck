@@ -5,6 +5,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import salaryCheck.model.AppData;
+import salaryCheck.model.ExpenseType;
 
 
 public class ExpenseTypeEditDialogController {
@@ -13,7 +14,7 @@ public class ExpenseTypeEditDialogController {
     private boolean isAlreadyExist;
     private Stage dialogStage;
     private AppData appData;
-    private String tempExpenseType;
+    private ExpenseType tempExpenseType;
 
     @FXML
     private TextField expenseTypeTextField;
@@ -30,23 +31,24 @@ public class ExpenseTypeEditDialogController {
         this.dialogStage = dialogStage;
     }
 
-    public void setTempExpenseType(String expenseType) {
+    public void setTempExpenseType(ExpenseType expenseType) {
         tempExpenseType = expenseType;
 
-        if(!appData.getExpenseTypes().contains(tempExpenseType)) {
+        if(!appData.getExpenseTypes().contains(expenseType)) {
             isAlreadyExist = false;
         } else {
+            isAlreadyExist = true;
             expenseTypeIndex = appData.getExpenseTypes().indexOf(tempExpenseType);
-            expenseTypeTextField.setText(tempExpenseType);
+            expenseTypeTextField.setText(tempExpenseType.getName());
         }
     }
 
     private boolean handleApply(){
 
-        tempExpenseType = expenseTypeTextField.getText();
+        tempExpenseType.setName(expenseTypeTextField.getText());
 
-        for(String expenseType : appData.getExpenseTypes()){
-            if(appData.getExpenseTypes().indexOf(expenseType) != expenseTypeIndex && expenseType.equals(tempExpenseType)){
+        for(ExpenseType expenseType : appData.getExpenseTypes()){
+            if(appData.getExpenseTypes().indexOf(expenseType) != expenseTypeIndex && expenseType.getName().equals(tempExpenseType.getName())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -58,7 +60,7 @@ public class ExpenseTypeEditDialogController {
             }
         }
 
-        return tempExpenseType != null && !tempExpenseType.equals("");
+        return tempExpenseType != null && !tempExpenseType.getName().equals("");
     }
 
     @FXML

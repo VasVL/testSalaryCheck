@@ -41,11 +41,11 @@
                   <MenuItem fx:id="employeesMenuItem" mnemonicParsing="false" text="Продавцы" />
                   <MenuItem fx:id="expenseTypesMenuItem" mnemonicParsing="false" text="Статьи расходов" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Сохранить">
+                  <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Сохранить">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-              <MenuItem mnemonicParsing="false" text="Закрыть" />
+              <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Закрыть" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Настройки">

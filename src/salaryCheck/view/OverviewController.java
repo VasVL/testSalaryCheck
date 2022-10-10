@@ -35,6 +35,10 @@ public class OverviewController implements Initializable {
     private MenuItem employeesMenuItem;
     @FXML
     private MenuItem expenseTypesMenuItem;
+    @FXML
+    private MenuItem saveMenuItem;
+    @FXML
+    private MenuItem closeMenuItem;
 
 
     @FXML
@@ -65,7 +69,7 @@ public class OverviewController implements Initializable {
     // Ссылка на данные приложения
     private final AppData appData;
     private final DialogCreator dialogCreator;
-    public MainApp mainApp = new MainApp();
+
 
     /**
      * Конструктор.
@@ -79,7 +83,7 @@ public class OverviewController implements Initializable {
         SaveLoad.loadAppDataFromFile(new File("AppData.xml"));
         if(!appData.getStores().isEmpty()) {
             appData.setCurrentStore(appData.getStores().get(0));
-            appData.setEmployeesWorkDays();
+            appData.fillStoreTables();
         } else {
             appData.setCurrentStore(new Store());
         }
@@ -89,10 +93,9 @@ public class OverviewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        storeComboBox.setItems(appData.getStores().filtered(Store::isActive));
+        storeComboBox.setItems(appData.getStores().filtered(Store::getActive));
         storeComboBox.setValue(appData.getCurrentStore());
         storeComboBox.setOnAction(event -> {
-            storeComboBox.setItems(appData.getStores().filtered(Store::isActive));
             appData.setCurrentStore(storeComboBox.getValue());
         });
 
@@ -126,7 +129,7 @@ public class OverviewController implements Initializable {
         *
         * */
 
-        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
+        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::getActive)));
         employeeTableColumn.setOnEditCommit(editEvent ->{
                 StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
                 // удаляем рабочий день у сотрудника, который был выбран до этого
@@ -162,25 +165,24 @@ public class OverviewController implements Initializable {
         expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<StoreTableRow, String> editEvent) {
-                int indexRow = editEvent.getTablePosition().getRow();
-                dialogCreator.showExpensesEditDialog(indexRow);
+
+                //int indexRow = editEvent.getTablePosition()..getRow();
+                StoreTableRow storeTableRow = editEvent.getRowValue();
+                //dialogCreator.showExpensesEditDialog(indexRow);
+                dialogCreator.showExpensesEditDialog(storeTableRow);
             }
         });
 
 
         // Файл -> Новое окно: Магазины / Продавцы / Статьи расходов
-        // Обновляем список сотрудников для ComboBox'ов в таблице после закрытия нового окна
         storesMenuItem.setOnAction(event -> {
             dialogCreator.showListOverview(0);
-            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
         });
         employeesMenuItem.setOnAction(event -> {
             dialogCreator.showListOverview(1);
-            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
         });
         expenseTypesMenuItem.setOnAction(event -> {
             dialogCreator.showListOverview(2);
-            employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::isActive)));
         });
 
         // файл -> Добавить...
@@ -188,52 +190,35 @@ public class OverviewController implements Initializable {
         addEmployeeMenuItem.setOnAction(event -> dialogCreator.showEmployeeEditDialog());
         addExpenseTypeMenuItem.setOnAction(event -> dialogCreator.showExpenseTypeEditDialog());
 
+        saveMenuItem.setOnAction(actionEvent -> SaveLoad.saveAppDataToFile(new File("AppData.xml")));
+        closeMenuItem.setOnAction(actionEvent -> MainApp.getPrimaryStage().close());
+
         // todo убрать повтор
-        selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
+        selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
                 item -> {
-                    MenuItem menuItem = new MenuItem(item.getName());
-                    menuItem.setOnAction(actionEvent -> {
-                        appData.setCurrentStore(item);
-                    });
+                    CheckMenuItem menuItem = new CheckMenuItem(item.getName());
+                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
                     return menuItem;
                 }
-            ).toList());
+        ).toList());
         // setOnAction добавил, потому что без него при начальном пустом списке магазинов selectStoreMenu отказывался обновляться
-        selectStoreMenu.setOnAction(event -> {
-            selectStoreMenu.getItems().clear();
-            selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
-                    item -> {
-                        MenuItem menuItem = new MenuItem(item.getName());
-                        menuItem.setOnAction(actionEvent -> {
-                            appData.setCurrentStore(item);
-                            storeComboBox.setValue(item);
-                        });
-                        return menuItem;
-                    }
-            ).toList()); } );
-
-        selectStoreMenu.setOnShowing(event -> {
-            selectStoreMenu.getItems().clear();
-            selectStoreMenu.getItems().addAll(appData.getStores().stream().filter(Store::isActive).map(
+        selectStoreMenu.setOnAction(event ->
+            selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
                 item -> {
-                    MenuItem menuItem = new MenuItem(item.getName());
-                    menuItem.setOnAction(actionEvent -> {
-                        appData.setCurrentStore(item);
-                        storeComboBox.setValue(item);
-                    });
+                    CheckMenuItem menuItem = new CheckMenuItem(item.getName());
+                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
                     return menuItem;
                 }
-            ).toList()); } );
-    }
+            ).toList()) );
 
-
-    /**
-     * Вызывается главным приложением, которое даёт на себя ссылку.
-     *
-     * //@param mainApp
-     */
-    public void setMainApp(MainApp mainApp){
-        this.mainApp = mainApp;
+        selectStoreMenu.setOnShowing(event ->
+            selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
+                item -> {
+                    CheckMenuItem menuItem = new CheckMenuItem(item.getName());
+                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
+                    return menuItem;
+                }
+            ).toList()) );
     }
 
     @FXML
