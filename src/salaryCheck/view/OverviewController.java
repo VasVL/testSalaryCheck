@@ -7,6 +7,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.*;
@@ -82,8 +86,8 @@ public class OverviewController implements Initializable {
         // todo
         SaveLoad.loadAppDataFromFile(new File("AppData.xml"));
         if(!appData.getStores().isEmpty()) {
-            appData.setCurrentStore(appData.getStores().get(0));
             appData.fillStoreTables();
+            appData.setCurrentStore(appData.getStores().get(0));
         } else {
             appData.setCurrentStore(new Store());
         }
@@ -99,7 +103,11 @@ public class OverviewController implements Initializable {
             appData.setCurrentStore(storeComboBox.getValue());
         });
 
-        storeTableView.setItems(appData.getStoreTable());
+
+
+        storeTableView.setItems(appData.getStoreTable());;
+
+
 
         // Инициализация таблицы
         // Для всех кроме StringProperty нужно добавлять в конце .asObject() (либо переопределять toString())
@@ -109,8 +117,6 @@ public class OverviewController implements Initializable {
         nonCashTableColumn.setCellValueFactory(cellData -> cellData.getValue().nonCashProperty().asObject());
         cashTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashProperty().asObject());
         cashBalanceTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashBalanceProperty().asObject());
-        // todo
-        // Поменял на Bindings.createStringBinding, но это выглядит как костыль, надо использовать интерфейс Observable
         expensesTableColumn.setCellValueFactory(cellData ->
                 Bindings.createStringBinding(
                         () ->
@@ -129,49 +135,44 @@ public class OverviewController implements Initializable {
         *
         * */
 
-        employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::getActive)));
+        //employeeTableColumn.setCellFactory(ComboBoxTableCell.forTableColumn(appData.getEmployees().filtered(Employee::getActive)));
+        employeeTableColumn.setCellFactory(comboBoxTableColumn -> employeeSellCreator());
         employeeTableColumn.setOnEditCommit(editEvent ->{
-                StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
-                // удаляем рабочий день у сотрудника, который был выбран до этого
-                if(editEvent.getOldValue() != null){
-                    editEvent.getOldValue().removeWorkDay(currentRow.getDate());
-                }
-                // добавляем рабочий день новому выбранному сотруднику
-                editEvent.getNewValue().addWorkDay(currentRow.getDate(), appData.getCurrentStore());
-                currentRow.setEmployee(editEvent.getNewValue());
+            StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
+            // удаляем рабочий день у сотрудника, который был выбран до этого
+            if(editEvent.getOldValue() != null){
+                editEvent.getOldValue().removeWorkDay(currentRow.getDate());
+            }
+            // добавляем рабочий день новому выбранному сотруднику
+            editEvent.getNewValue().addWorkDay(currentRow.getDate(), appData.getCurrentStore());
+            currentRow.setEmployee(editEvent.getNewValue());
         } );
 
 
-        allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        allFeeTableColumn.setOnEditCommit(editEvent ->
-                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                        setAllFee(editEvent.getNewValue()));
+        //allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        allFeeTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        allFeeTableColumn.setOnEditCommit(editEvent -> {
+            editEvent.getRowValue().setAllFee(editEvent.getNewValue());
+        });
 
-        nonCashTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        nonCashTableColumn.setOnEditCommit(editEvent ->
-                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                        setNonCash(editEvent.getNewValue()));
+        nonCashTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        nonCashTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setNonCash(editEvent.getNewValue()));
 
-        cashTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        cashTableColumn.setOnEditCommit(editEvent ->
-                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                        setCash(editEvent.getNewValue()));
+        cashTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        cashTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setCash(editEvent.getNewValue()));
 
-        cashBalanceTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        cashBalanceTableColumn.setOnEditCommit(editEvent ->
-                ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow())).
-                        setCashBalance(editEvent.getNewValue()));
+        cashBalanceTableColumn.setCellFactory(integerTableColumn -> cashBalanceCellCreator());
+        cashBalanceTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setCashBalance(editEvent.getNewValue()));
 
         expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<StoreTableRow, String> editEvent) {
 
-                //int indexRow = editEvent.getTablePosition()..getRow();
                 StoreTableRow storeTableRow = editEvent.getRowValue();
-                //dialogCreator.showExpensesEditDialog(indexRow);
                 dialogCreator.showExpensesEditDialog(storeTableRow);
             }
         });
+
 
 
         // Файл -> Новое окно: Магазины / Продавцы / Статьи расходов
@@ -219,6 +220,102 @@ public class OverviewController implements Initializable {
                     return menuItem;
                 }
             ).toList()) );
+    }
+
+
+    private ComboBoxTableCell<StoreTableRow, Employee> employeeSellCreator(){
+
+        ComboBoxTableCell<StoreTableRow, Employee> cell = new ComboBoxTableCell<>(appData.getEmployees().filtered(Employee::getActive));
+
+        cell.itemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(observableValue.getValue() != null && observableValue.getValue().getName().equals("")){
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                Tooltip tooltip = new Tooltip("Не выбран сотрудник");
+                tooltip.setShowDelay(new Duration(150));
+                cell.setTooltip(tooltip);
+            } else {
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                cell.setTooltip(null);
+            }
+        });
+
+        return cell;
+    }
+
+    private TextFieldTableCell<StoreTableRow, Integer> integerCellCreator(){
+
+        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>();
+        cell.setConverter(new IntegerStringConverter());
+
+        cell.tableRowProperty().addListener((observableValue, oldValue, newValue) -> {
+
+            Tooltip tooltip = new Tooltip("Сумма наличных и терминала не равна общей выручке");
+            tooltip.setShowDelay(new Duration(150));
+
+            cell.getTableRow().getItem().allFeeProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateAllFeeBalanceBackground(cell, tooltip));
+
+            cell.getTableRow().getItem().cashProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateAllFeeBalanceBackground(cell, tooltip));
+
+            cell.getTableRow().getItem().nonCashProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateAllFeeBalanceBackground(cell, tooltip));
+        });
+
+
+        return cell;
+    }
+
+    private void updateAllFeeBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip) {
+        if(isAllFeeBalanceCorrect(cell.getTableRow().getItem())){
+            cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+            cell.setTooltip(null);
+        } else {
+            cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+            cell.setTooltip(tooltip);
+        }
+    }
+
+    private boolean isAllFeeBalanceCorrect(StoreTableRow storeTableRow){
+
+        return storeTableRow.getAllFee() == storeTableRow.getCash() + storeTableRow.getNonCash();
+    }
+
+    private TextFieldTableCell<StoreTableRow, Integer> cashBalanceCellCreator(){
+        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>();
+        cell.setConverter(new IntegerStringConverter());
+
+        cell.tableRowProperty().addListener((observableValue, oldValue, newValue) -> {
+
+            Tooltip tooltip = new Tooltip("Сумма остатка и расходов не равна наличным");
+            tooltip.setShowDelay(new Duration(150));
+
+            cell.getTableRow().getItem().cashProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateCashBalanceBackground( cell, tooltip));
+
+            cell.getTableRow().getItem().expensesProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateCashBalanceBackground( cell, tooltip));
+
+            cell.getTableRow().getItem().cashBalanceProperty().addListener((observableValue1, oldValue1, newValue1) ->
+                    updateCashBalanceBackground( cell, tooltip));
+        });
+
+        return cell;
+    }
+
+    private void updateCashBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip){
+        if (isCashBalanceCorrect(cell.getTableRow().getItem())) {
+            cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+            cell.setTooltip(null);
+        } else {
+            cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+            cell.setTooltip(tooltip);
+        }
+    }
+
+    private boolean isCashBalanceCorrect(StoreTableRow storeTableRow){
+
+        return storeTableRow.getCash() == storeTableRow.getExpenses().stream().mapToInt(Expense::getAmount).sum() + storeTableRow.getCashBalance();
     }
 
     @FXML

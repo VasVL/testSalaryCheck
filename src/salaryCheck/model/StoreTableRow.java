@@ -32,7 +32,7 @@ public class StoreTableRow {
         this(LocalDate.now(),
                 new Employee(""),
                 0, 0, 0, 0,
-                FXCollections.observableArrayList());
+                FXCollections.observableArrayList(/*expence -> new Observable[]{expence.getAmount()}*/));
     }
 
     /**
@@ -58,7 +58,6 @@ public class StoreTableRow {
         this.nonCash = new SimpleIntegerProperty(nonCash);
         this.cash = new SimpleIntegerProperty(cash);
         this.cashBalance = new SimpleIntegerProperty(cashBalance);
-        //this.expenses = new SimpleObjectProperty<>(expenses);
         this.expenses = new SimpleListProperty<>(expenses);
     }
 

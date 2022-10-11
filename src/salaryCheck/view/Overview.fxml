@@ -65,13 +65,13 @@
       </MenuBar>
       <TableView fx:id="storeTableView" editable="true" fixedCellSize="0.0" layoutY="32.0" prefHeight="707.0" prefWidth="1200.0" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
         <columns>
-          <TableColumn fx:id="dateTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" text="Дата" />
-          <TableColumn fx:id="employeeTableColumn" maxWidth="200.0" minWidth="-1.0" prefWidth="200.0" text="Имя" />
-            <TableColumn fx:id="allFeeTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" text="Выручка" />
-            <TableColumn fx:id="nonCashTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" text="Терминал" />
-            <TableColumn fx:id="cashTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" text="Наличные" />
-            <TableColumn fx:id="expensesTableColumn" maxWidth="700.0" minWidth="-1.0" prefWidth="700.9999694824219" text="Расход" />
-            <TableColumn fx:id="cashBalanceTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" text="Остаток" />
+          <TableColumn fx:id="dateTableColumn" editable="false" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Дата" />
+          <TableColumn fx:id="employeeTableColumn" maxWidth="200.0" minWidth="-1.0" prefWidth="200.0" sortable="false" text="Имя" />
+            <TableColumn fx:id="allFeeTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Выручка" />
+            <TableColumn fx:id="nonCashTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Терминал" />
+            <TableColumn fx:id="cashTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Наличные" />
+            <TableColumn fx:id="expensesTableColumn" maxWidth="700.0" minWidth="-1.0" prefWidth="700.9999694824219" sortable="false" text="Расход" />
+            <TableColumn fx:id="cashBalanceTableColumn" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Остаток" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -10,7 +10,6 @@ public class Expense {
     private Integer amount;
     private String purpose;
 
-    //private String expenseType;
     private ExpenseType expenseType;
     private Employee employee;
     private String store;    // Здесь переделываю Store в String из-за ошибки сериализации: возникает бесконечный цикл
