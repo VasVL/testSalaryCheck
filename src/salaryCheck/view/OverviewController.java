@@ -1,7 +1,7 @@
 package salaryCheck.view;
 
 import javafx.beans.binding.Bindings;
-import javafx.event.EventHandler;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -25,6 +25,10 @@ public class OverviewController implements Initializable {
     @FXML
     private ComboBox<Store> storeComboBox;
 
+    @FXML
+    private Menu fileMenu;
+    @FXML
+    private Menu selectMenu;
     @FXML
     private Menu selectStoreMenu;
     @FXML
@@ -105,27 +109,33 @@ public class OverviewController implements Initializable {
 
 
 
-        storeTableView.setItems(appData.getStoreTable());;
+        storeTableView.setItems(appData.getStoreTable());
 
 
 
         // Инициализация таблицы
         // Для всех кроме StringProperty нужно добавлять в конце .asObject() (либо переопределять toString())
         dateTableColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
-        employeeTableColumn.setCellValueFactory(cellData -> cellData.getValue().employeeProperty());
+        //employeeTableColumn.setCellValueFactory(cellData -> cellData.getValue().employeeProperty());
+        employeeTableColumn.setCellValueFactory(cellData ->
+                Bindings.createObjectBinding(
+                        () -> cellData.getValue().getEmployee(),
+                        appData.getEmployees()
+                )
+        );
         allFeeTableColumn.setCellValueFactory(cellData -> cellData.getValue().allFeeProperty().asObject());
         nonCashTableColumn.setCellValueFactory(cellData -> cellData.getValue().nonCashProperty().asObject());
         cashTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashProperty().asObject());
         cashBalanceTableColumn.setCellValueFactory(cellData -> cellData.getValue().cashBalanceProperty().asObject());
         expensesTableColumn.setCellValueFactory(cellData ->
                 Bindings.createStringBinding(
-                        () ->
-                        cellData.getValue().
-                        getExpenses().
-                        stream().
-                        map(Expense::toString).
-                        reduce((s1, s2) -> s1 + ";\n" + s2).orElse(""),
-                cellData.getValue().expensesProperty())
+                        () -> cellData.getValue().
+                                getExpenses().
+                                stream().
+                                map(Expense::toString).
+                                reduce((s1, s2) -> s1 + ";\n" + s2).orElse(""),
+                        cellData.getValue().getExpenses(), appData.getExpenseTypes()
+                )
         );
 
         /*
@@ -150,28 +160,36 @@ public class OverviewController implements Initializable {
 
 
         //allFeeTableColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        allFeeTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        allFeeTableColumn.setCellFactory(integerTableColumn -> feeCashNonCashCellCreator());
         allFeeTableColumn.setOnEditCommit(editEvent -> {
             editEvent.getRowValue().setAllFee(editEvent.getNewValue());
         });
 
-        nonCashTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        nonCashTableColumn.setCellFactory(integerTableColumn -> feeCashNonCashCellCreator());
         nonCashTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setNonCash(editEvent.getNewValue()));
 
-        cashTableColumn.setCellFactory(integerTableColumn -> integerCellCreator());
+        cashTableColumn.setCellFactory(integerTableColumn -> feeCashNonCashCellCreator());
         cashTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setCash(editEvent.getNewValue()));
 
         cashBalanceTableColumn.setCellFactory(integerTableColumn -> cashBalanceCellCreator());
         cashBalanceTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setCashBalance(editEvent.getNewValue()));
 
-        expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
+        expensesTableColumn.setCellFactory(storeTableRowStringTableColumn -> new TextFieldTableCell<>() {
+            @Override
+            public void startEdit() {
+                //super.startEdit();
+                StoreTableRow storeTableRow = getTableRow().getItem();
+                dialogCreator.showExpensesEditDialog(storeTableRow);
+            }
+        });
+        /*expensesTableColumn.setOnEditStart(new EventHandler<TableColumn.CellEditEvent<StoreTableRow, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<StoreTableRow, String> editEvent) {
 
                 StoreTableRow storeTableRow = editEvent.getRowValue();
                 dialogCreator.showExpensesEditDialog(storeTableRow);
             }
-        });
+        });*/
 
 
 
@@ -198,7 +216,13 @@ public class OverviewController implements Initializable {
         selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
                 item -> {
                     CheckMenuItem menuItem = new CheckMenuItem(item.getName());
-                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
+                    if(item.equals(appData.getCurrentStore())){
+                        menuItem.setSelected(true);
+                    }
+                    menuItem.setOnAction(actionEvent -> {
+                        fileMenu.hide();
+                        storeComboBox.setValue(item);
+                    });
                     return menuItem;
                 }
         ).toList());
@@ -207,7 +231,13 @@ public class OverviewController implements Initializable {
             selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
                 item -> {
                     CheckMenuItem menuItem = new CheckMenuItem(item.getName());
-                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
+                    if(item.equals(appData.getCurrentStore())){
+                        menuItem.setSelected(true);
+                    }
+                    menuItem.setOnAction(actionEvent -> {
+                        fileMenu.hide();
+                        storeComboBox.setValue(item);
+                    });
                     return menuItem;
                 }
             ).toList()) );
@@ -216,7 +246,13 @@ public class OverviewController implements Initializable {
             selectStoreMenu.getItems().setAll(appData.getStores().stream().filter(Store::getActive).map(
                 item -> {
                     CheckMenuItem menuItem = new CheckMenuItem(item.getName());
-                    menuItem.setOnAction(actionEvent -> storeComboBox.setValue(item));
+                    if(item.equals(appData.getCurrentStore())){
+                        menuItem.setSelected(true);
+                    }
+                    menuItem.setOnAction(actionEvent -> {
+                        fileMenu.hide();
+                        storeComboBox.setValue(item);
+                    });
                     return menuItem;
                 }
             ).toList()) );
@@ -242,37 +278,48 @@ public class OverviewController implements Initializable {
         return cell;
     }
 
-    private TextFieldTableCell<StoreTableRow, Integer> integerCellCreator(){
+    private TextFieldTableCell<StoreTableRow, Integer> feeCashNonCashCellCreator(){
 
-        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>();
+        Tooltip tooltip = new Tooltip("Сумма наличных и терминала не равна общей выручке");
+        tooltip.setShowDelay(new Duration(150));
+
+        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>(){
+            @Override
+            public void updateItem(Integer integer, boolean b) {
+                super.updateItem(integer, b);
+
+                if(integer != null){
+                    if(getTableRow().getItem() != null) {
+                        if (isAllFeeBalanceCorrect(getTableRow().getItem())) {
+                            setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                            setTooltip(null);
+                        } else {
+                            setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                            setTooltip(tooltip);
+                        }
+                    }
+                }
+            }
+        };
+
         cell.setConverter(new IntegerStringConverter());
 
-        cell.tableRowProperty().addListener((observableValue, oldValue, newValue) -> {
-
-            Tooltip tooltip = new Tooltip("Сумма наличных и терминала не равна общей выручке");
-            tooltip.setShowDelay(new Duration(150));
-
-            cell.getTableRow().getItem().allFeeProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateAllFeeBalanceBackground(cell, tooltip));
-
-            cell.getTableRow().getItem().cashProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateAllFeeBalanceBackground(cell, tooltip));
-
-            cell.getTableRow().getItem().nonCashProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateAllFeeBalanceBackground(cell, tooltip));
-        });
-
+        appData.getStoreTable().addListener((ListChangeListener<StoreTableRow>) change -> updateAllFeeBalanceBackground(cell, tooltip));
 
         return cell;
     }
 
     private void updateAllFeeBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip) {
-        if(isAllFeeBalanceCorrect(cell.getTableRow().getItem())){
-            cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
-            cell.setTooltip(null);
-        } else {
-            cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-            cell.setTooltip(tooltip);
+        if(cell.getTableView().getItems().size() > 0 && cell.getIndex() >= 0) {
+            StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
+
+            if (isAllFeeBalanceCorrect(storeTableRow)) {
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                cell.setTooltip(null);
+            } else {
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                cell.setTooltip(tooltip);
+            }
         }
     }
 
@@ -282,34 +329,49 @@ public class OverviewController implements Initializable {
     }
 
     private TextFieldTableCell<StoreTableRow, Integer> cashBalanceCellCreator(){
-        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>();
+
+        Tooltip tooltip = new Tooltip("Сумма остатка и расходов не равна наличным");
+        tooltip.setShowDelay(new Duration(150));
+
+        TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>(){
+            @Override
+            public void updateItem(Integer integer, boolean b) {
+                super.updateItem(integer, b);
+
+                if(integer != null){
+                    if(getTableRow().getItem() != null) {
+                        if (isCashBalanceCorrect(getTableRow().getItem())) {
+                            setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                            setTooltip(null);
+                        } else {
+                            setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                            setTooltip(tooltip);
+                        }
+                    }
+                }
+            }
+        };
+
         cell.setConverter(new IntegerStringConverter());
 
-        cell.tableRowProperty().addListener((observableValue, oldValue, newValue) -> {
-
-            Tooltip tooltip = new Tooltip("Сумма остатка и расходов не равна наличным");
-            tooltip.setShowDelay(new Duration(150));
-
-            cell.getTableRow().getItem().cashProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateCashBalanceBackground( cell, tooltip));
-
-            cell.getTableRow().getItem().expensesProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateCashBalanceBackground( cell, tooltip));
-
-            cell.getTableRow().getItem().cashBalanceProperty().addListener((observableValue1, oldValue1, newValue1) ->
-                    updateCashBalanceBackground( cell, tooltip));
-        });
+        appData.getStoreTable().addListener((ListChangeListener<StoreTableRow>) change -> updateCashBalanceBackground(cell, tooltip));
 
         return cell;
     }
 
     private void updateCashBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip){
-        if (isCashBalanceCorrect(cell.getTableRow().getItem())) {
-            cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
-            cell.setTooltip(null);
-        } else {
-            cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-            cell.setTooltip(tooltip);
+        //if(cell.getTableRow().getItem() != null) {
+        //if (isCashBalanceCorrect(cell.getTableRow().getItem())) {
+        if(cell.getTableView().getItems().size() > 0 && cell.getIndex() >= 0) {
+            StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
+
+            if (isCashBalanceCorrect(storeTableRow)) {
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                cell.setTooltip(null);
+            } else {
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                cell.setTooltip(tooltip);
+            }
         }
     }
 

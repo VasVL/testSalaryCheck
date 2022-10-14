@@ -44,10 +44,8 @@ public class EmployeeEditDialogController {
 
     private boolean handleApply(){
 
-        tempEmployee.setName(nameTextField.getText());
-
         for(Employee employee : appData.getEmployees()){
-            if(appData.getEmployees().indexOf(employee) != employeeIndex && employee.getName().equals(tempEmployee.getName())){
+            if(appData.getEmployees().indexOf(employee) != employeeIndex && employee.getName().equals(nameTextField.getText())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -59,15 +57,18 @@ public class EmployeeEditDialogController {
             }
         }
 
-        return tempEmployee.getName() != null && !tempEmployee.getName().equals("");
+        return nameTextField.getText() != null && !nameTextField.getText().equals("");
     }
 
     @FXML
     private void handleOkButton(){
 
         if(handleApply()) {
+            tempEmployee.setName(nameTextField.getText());
             if(!isAlreadyExist) {
                 appData.getEmployees().add(tempEmployee);
+            } else {
+
             }
             dialogStage.close();
         }

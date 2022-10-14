@@ -55,10 +55,8 @@ public class StoreEditDialogController {
 
     private boolean handleApply(){
 
-        tempStore.setName(nameTextField.getText());
-
         for(Store store : appData.getStores()){
-            if(appData.getStores().indexOf(store) != storeIndex && store.getName().equals(tempStore.getName())){
+            if(appData.getStores().indexOf(store) != storeIndex && store.getName().equals(nameTextField.getText())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -71,9 +69,9 @@ public class StoreEditDialogController {
         }
 
         try {
-            tempStore.setShiftPay(Integer.parseInt(shiftPayTextField.getText()));
-            tempStore.setCleaningPay(Integer.parseInt(cleaningPayTextField.getText()));
-            tempStore.setSalesPercentage(Double.parseDouble(salesPercentageTextField.getText()) * 0.01);
+            Integer.parseInt(shiftPayTextField.getText());
+            Integer.parseInt(cleaningPayTextField.getText());
+            Double.parseDouble(salesPercentageTextField.getText());
         } catch (NumberFormatException e){
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -86,16 +84,20 @@ public class StoreEditDialogController {
             return false;
         }
 
-        return tempStore.getName() != null && !tempStore.getName().equals("") &&
-                tempStore.getShiftPay() != null &&
-                tempStore.getCleaningPay() != null &&
-                tempStore.getSalesPercentage() != null;
+        return nameTextField.getText() != null && !nameTextField.getText().equals("") &&
+                shiftPayTextField.getText() != null &&
+                cleaningPayTextField.getText() != null &&
+                salesPercentageTextField.getText() != null;
     }
 
     @FXML
     private void handleOkButton(){
 
         if(handleApply()) {
+            tempStore.setName(nameTextField.getText());
+            tempStore.setShiftPay(Integer.parseInt(shiftPayTextField.getText()));
+            tempStore.setCleaningPay(Integer.parseInt(cleaningPayTextField.getText()));
+            tempStore.setSalesPercentage(Double.parseDouble(salesPercentageTextField.getText()) * 0.01);
             if(!isAlreadyExist){
 
                 appData.getStores().add(tempStore);

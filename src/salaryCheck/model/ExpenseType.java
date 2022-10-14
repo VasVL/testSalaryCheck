@@ -2,12 +2,15 @@ package salaryCheck.model;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import javax.xml.bind.annotation.XmlElement;
 
 public class ExpenseType {
 
-    private String name;
+    //private String name;
+    private StringProperty name;
     private BooleanProperty isActive;
 
     public ExpenseType() {
@@ -15,16 +18,27 @@ public class ExpenseType {
     }
 
     public ExpenseType(String name) {
-        this.name = name;
+        //this.name = name;
+        this.name = new SimpleStringProperty(name);
         this.isActive = new SimpleBooleanProperty(true);
     }
 
+//    public String getName() {
+//        return name;
+//    }
     public String getName() {
-        return name;
+        return name.getValue();
     }
 
+//    public void setName(String name) {
+//        this.name = name;
+//    }
     public void setName(String name) {
-        this.name = name;
+        this.name.setValue(name);
+    }
+
+    public StringProperty nameProperty(){
+        return name;
     }
 
     @XmlElement(name = "isActive")
@@ -42,6 +56,6 @@ public class ExpenseType {
 
     @Override
     public String toString() {
-        return name;
+        return name.getValue();
     }
 }

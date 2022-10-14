@@ -28,10 +28,17 @@ public class AppData {
 
     private AppData() {
 
-        storeTable = FXCollections.observableArrayList();
+        storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
+                storeTableRow.allFeeProperty(),
+                storeTableRow.nonCashProperty(),
+                storeTableRow.cashProperty(),
+                //storeTableRow.expensesProperty(),
+                storeTableRow.getExpenses(),
+                storeTableRow.cashBalanceProperty()
+        });
         stores = FXCollections.observableArrayList(store -> new Observable[]{store.isActiveProperty()});
-        employees = FXCollections.observableArrayList(employee -> new Observable[]{employee.isActiveProperty()});
-        expenseTypes = FXCollections.observableArrayList(expenseType -> new Observable[]{expenseType.isActiveProperty()});
+        employees = FXCollections.observableArrayList(employee -> new Observable[]{employee.isActiveProperty(), employee.nameProperty()});
+        expenseTypes = FXCollections.observableArrayList(expenseType -> new Observable[]{expenseType.isActiveProperty(), expenseType.nameProperty()});
     }
 
     public static AppData getInstance(){
@@ -61,7 +68,7 @@ public class AppData {
                             if( expense.getExpenseType().getName().equals(expenseType.getName()) ){
                                 expense.setExpenseType(expenseType);
                             }
-                        }
+                        } // todo expense.getExpenseType().getName()
                         if(expense.getEmployee() != null && expense.getEmployee().getName().equals(employee.getName())){
                             expense.setEmployee(employee);
                             employee.addSalaryBalance(-expense.getAmount());
@@ -96,8 +103,9 @@ public class AppData {
 
         for(Store store : stores){
             if(store.equals(currentStore)){
-                storeTable.clear();
-                storeTable.addAll(currentStore.getStoreTable());
+                //storeTable.clear();
+                storeTable.setAll(currentStore.getStoreTable());
+                //storeTable.addAll(currentStore.getStoreTable());
                 return;
             }
         }

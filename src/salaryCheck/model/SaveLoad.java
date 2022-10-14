@@ -98,9 +98,9 @@ public abstract class SaveLoad {
         } catch (Exception e) { // catches ANY exception
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not save data");
-            alert.setContentText("Could not save data to file:\n" + file.getPath());
+            alert.setTitle("Одна ошибка");
+            alert.setHeaderText("И ты ошибся");
+            alert.setContentText("Не получается сохранить данные в файл:\n" + file.getPath());
 
             alert.showAndWait();
         }

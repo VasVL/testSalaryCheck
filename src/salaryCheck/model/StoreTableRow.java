@@ -1,5 +1,6 @@
 package salaryCheck.model;
 
+import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,7 +24,8 @@ public class StoreTableRow {
     private IntegerProperty cash;
     private IntegerProperty cashBalance;
 
-    private ListProperty<Expense> expenses;
+    //private ListProperty<Expense> expenses;
+    private ObservableList<Expense> expenses;
 
     /**
     * Конструктор по умолчанию.
@@ -32,7 +34,7 @@ public class StoreTableRow {
         this(LocalDate.now(),
                 new Employee(""),
                 0, 0, 0, 0,
-                FXCollections.observableArrayList(/*expence -> new Observable[]{expence.getAmount()}*/));
+                FXCollections.observableArrayList(expense -> new Observable[]{expense.expenseTypeProperty(), expense.purposeProperty()}));
     }
 
     /**
@@ -58,7 +60,8 @@ public class StoreTableRow {
         this.nonCash = new SimpleIntegerProperty(nonCash);
         this.cash = new SimpleIntegerProperty(cash);
         this.cashBalance = new SimpleIntegerProperty(cashBalance);
-        this.expenses = new SimpleListProperty<>(expenses);
+        //this.expenses = new SimpleListProperty<>(expenses);
+        this.expenses = FXCollections.observableArrayList(expenses);
     }
 
 
@@ -155,16 +158,18 @@ public class StoreTableRow {
 
     @XmlElementWrapper(name = "expenses")
     @XmlElement(name = "expense")
+//    public ObservableList<Expense> getExpenses() {
+//        return expenses.get();
+//    }
     public ObservableList<Expense> getExpenses() {
-        return expenses.get();
-    }
-
-    public ListProperty<Expense> expensesProperty() {
         return expenses;
     }
+//    public ListProperty<Expense> expensesProperty() {
+//        return expenses;
+//    }
 
     public void setExpenses(ObservableList<Expense> expenses) {
-        this.expenses.set(expenses);
+        this.expenses.setAll(expenses);
     }
 
     public void addExpense(Expense expense){

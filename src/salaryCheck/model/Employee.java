@@ -2,6 +2,8 @@ package salaryCheck.model;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -11,8 +13,9 @@ import java.time.LocalDate;
 
 public class Employee {
 
-    private String name;
-    // todo  подумать, нужно ли хранить это или можно рассчитывать каждый раз (пока хочу рассчитывать после инициализации XML-документа)
+    //private String name;
+    private StringProperty name;
+    // todo подумать, нужно ли хранить это или можно рассчитывать каждый раз (пока хочу рассчитывать после инициализации XML-документа)
     private ObservableMap<LocalDate, Store> workDays;
 
     // Это не буду синхронизовать
@@ -26,19 +29,30 @@ public class Employee {
     }
 
     public Employee(String name) {
-        this.name = name;
+        //this.name = name;
+        this.name = new SimpleStringProperty(name);
         this.workDays = FXCollections.observableHashMap();
         this.salaryBalance = 0;
         this.isActive = new SimpleBooleanProperty(true);
     }
 
+//    public String getName() {
+//        return name;
+//    }
     public String getName() {
-        return name;
+        return name.getValue();
     }
 
     @XmlElement(name = "name")
+//    public void setName(String name) {
+//        this.name = name;
+//    }
     public void setName(String name) {
-        this.name = name;
+        this.name.setValue(name);
+    }
+
+    public StringProperty nameProperty(){
+        return this.name;
     }
 
     public ObservableMap<LocalDate, Store> getWorkDays() {
@@ -82,7 +96,10 @@ public class Employee {
     }
 
     @Override
+//    public String toString() {
+//        return name;
+//    }
     public String toString() {
-        return name;
+        return name.getValue();
     }
 }

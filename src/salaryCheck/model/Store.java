@@ -1,5 +1,6 @@
 package salaryCheck.model;
 
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -23,7 +24,14 @@ public class Store {
     public Store() {
 
         //this("Неизвестный магазин", 1200, 200, 0.06);
-        this.storeTable = FXCollections.observableArrayList();
+        this.storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
+                storeTableRow.allFeeProperty(),
+                storeTableRow.nonCashProperty(),
+                storeTableRow.cashProperty(),
+                //storeTableRow.expensesProperty(),
+                storeTableRow.getExpenses(),
+                storeTableRow.cashBalanceProperty()
+        });
         // todo здесь оставить добавлениетолько одной строки, и сделать кнопку для добавления сткрок
         for(int i = 0; i < 30; i++){
             StoreTableRow storeTableRow = new StoreTableRow();

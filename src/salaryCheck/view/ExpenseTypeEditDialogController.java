@@ -4,8 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import salaryCheck.model.AppData;
-import salaryCheck.model.ExpenseType;
+import salaryCheck.model.*;
 
 
 public class ExpenseTypeEditDialogController {
@@ -45,10 +44,8 @@ public class ExpenseTypeEditDialogController {
 
     private boolean handleApply(){
 
-        tempExpenseType.setName(expenseTypeTextField.getText());
-
         for(ExpenseType expenseType : appData.getExpenseTypes()){
-            if(appData.getExpenseTypes().indexOf(expenseType) != expenseTypeIndex && expenseType.getName().equals(tempExpenseType.getName())){
+            if(appData.getExpenseTypes().indexOf(expenseType) != expenseTypeIndex && expenseType.getName().equals(expenseTypeTextField.getText())){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.initOwner(dialogStage);
                 alert.setTitle("Ошибонька");
@@ -60,17 +57,16 @@ public class ExpenseTypeEditDialogController {
             }
         }
 
-        return tempExpenseType != null && !tempExpenseType.getName().equals("");
+        return expenseTypeTextField.getText() != null && !expenseTypeTextField.getText().equals("");
     }
 
     @FXML
     private void handleOkButton(){
 
         if(handleApply()) {
+            tempExpenseType.setName(expenseTypeTextField.getText());
             if(!isAlreadyExist) {
                 appData.getExpenseTypes().add(tempExpenseType);
-            } else {
-                appData.getExpenseTypes().set(expenseTypeIndex, tempExpenseType);
             }
             dialogStage.close();
         }
