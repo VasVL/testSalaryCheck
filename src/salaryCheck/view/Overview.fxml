@@ -63,7 +63,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <TableView fx:id="storeTableView" editable="true" fixedCellSize="0.0" layoutY="32.0" prefHeight="707.0" prefWidth="1200.0" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+      <TableView fx:id="storeTableView" editable="true" fixedCellSize="0.0" layoutY="32.0" prefWidth="1200.0" AnchorPane.bottomAnchor="62.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
         <columns>
           <TableColumn fx:id="dateTableColumn" editable="false" maxWidth="130.0" minWidth="-1.0" prefWidth="130.0" sortable="false" text="Дата" />
           <TableColumn fx:id="employeeTableColumn" maxWidth="200.0" minWidth="-1.0" prefWidth="200.0" sortable="false" text="Имя" />
@@ -79,6 +79,8 @@
       </TableView>
       <HBox layoutX="1058.0" layoutY="769.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
+            <Button mnemonicParsing="false" onAction="#addRow" prefWidth="110.0" text="Добавить строку" />
+            <Button mnemonicParsing="false" onAction="#removeRow" prefWidth="110.0" text="Удалить строку" />
             <Button mnemonicParsing="false" onAction="#clearRow" text="Очистить строку" />
             <Button mnemonicParsing="false" onAction="#handleOkButton" prefWidth="62.0" text="OK" />
             <Button mnemonicParsing="false" onAction="#handleCloseButton" prefWidth="62.0" text="Закрыть" />

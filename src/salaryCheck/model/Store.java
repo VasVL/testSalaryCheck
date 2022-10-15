@@ -118,6 +118,12 @@ public class Store {
     public void addStoreTableRow(StoreTableRow storeTableRow){
         this.storeTable.add(storeTableRow);
     }
+    public void removeStoreTableRow(StoreTableRow storeTableRow){
+        this.storeTable.remove(storeTableRow);
+    }
+    public void removeStoreTableRow(int index){
+        this.storeTable.remove(index);
+    }
 
 
 

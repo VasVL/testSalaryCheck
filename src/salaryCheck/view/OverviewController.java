@@ -1,6 +1,8 @@
 package salaryCheck.view;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,6 +12,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
@@ -261,19 +264,47 @@ public class OverviewController implements Initializable {
 
     private ComboBoxTableCell<StoreTableRow, Employee> employeeSellCreator(){
 
-        ComboBoxTableCell<StoreTableRow, Employee> cell = new ComboBoxTableCell<>(appData.getEmployees().filtered(Employee::getActive));
+        ComboBoxTableCell<StoreTableRow, Employee> cell = new ComboBoxTableCell<>(appData.getEmployees().filtered(Employee::getActive)){
+            @Override
+            public void updateItem(Employee employee, boolean b) {
+                super.updateItem(employee, b);
 
-        cell.itemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if(observableValue.getValue() != null && observableValue.getValue().getName().equals("")){
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-                Tooltip tooltip = new Tooltip("Не выбран сотрудник");
-                tooltip.setShowDelay(new Duration(150));
-                cell.setTooltip(tooltip);
-            } else {
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
-                cell.setTooltip(null);
+                if (employee != null){
+                    if (employee.getName().equals("")) {
+                        setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                        Tooltip tooltip = new Tooltip("Не выбран сотрудник");
+                        tooltip.setShowDelay(new Duration(150));
+                        tooltip.setFont(Font.font(14));
+                        setTooltip(tooltip);
+                    } else {
+                        setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                        setTooltip(null);
+                    }
+                } else {
+                    setBackground(new Background(new BackgroundFill(Color.web("#FFFFFF", 0.0), null, null)));
+                }
             }
-        });
+        };
+
+        /*cell.itemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(cell.getIndex() < appData.getStoreTable().size()) {
+                if (observableValue.getValue() != null && observableValue.getValue().getName().equals("")) {
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                    Tooltip tooltip = new Tooltip("Не выбран сотрудник");
+                    tooltip.setShowDelay(new Duration(150));
+                    tooltip.setFont(Font.font(14));
+                    cell.setTooltip(tooltip);
+                    System.out.println("red " + cell.getIndex());
+                } else {
+                    System.out.println("green " + cell.getIndex());
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                    cell.setTooltip(null);
+                }
+            } else {
+                System.out.println("white " + cell.getIndex());
+                cell.setBackground(new Background(new BackgroundFill(Color.web("#FFFFFF", 0.0), null, null)));
+            }
+        });*/
 
         return cell;
     }
@@ -282,28 +313,36 @@ public class OverviewController implements Initializable {
 
         Tooltip tooltip = new Tooltip("Сумма наличных и терминала не равна общей выручке");
         tooltip.setShowDelay(new Duration(150));
+        tooltip.setFont(Font.font(14));
 
         TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>(){
             @Override
+            // Отвечает за обновление цвета ячейки при смене магазина, прокрутке таблицы и тп
             public void updateItem(Integer integer, boolean b) {
                 super.updateItem(integer, b);
 
-                if(integer != null){
-                    if(getTableRow().getItem() != null) {
+                if (integer != null) {
+                    if (getTableRow().getItem() != null) {
                         if (isAllFeeBalanceCorrect(getTableRow().getItem())) {
                             setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
                             setTooltip(null);
+                            System.out.println("green cell  " + getIndex());
                         } else {
                             setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
                             setTooltip(tooltip);
+                            System.out.println("red cell " + getIndex());
                         }
                     }
+                } else {
+                    setBackground(new Background(new BackgroundFill(Color.web("#FFFFFF", 0.0), null, null)));
+                    System.out.println("white cell " + getIndex());
                 }
             }
         };
 
         cell.setConverter(new IntegerStringConverter());
 
+        // Отвечает за обновление цвета ячейки при изменении значений таблицы
         appData.getStoreTable().addListener((ListChangeListener<StoreTableRow>) change -> updateAllFeeBalanceBackground(cell, tooltip));
 
         return cell;
@@ -311,14 +350,18 @@ public class OverviewController implements Initializable {
 
     private void updateAllFeeBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip) {
         if(cell.getTableView().getItems().size() > 0 && cell.getIndex() >= 0) {
-            StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
+            if(cell.getIndex() < appData.getCurrentStore().getStoreTable().size()) {
+                StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
 
-            if (isAllFeeBalanceCorrect(storeTableRow)) {
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
-                cell.setTooltip(null);
-            } else {
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-                cell.setTooltip(tooltip);
+                if (isAllFeeBalanceCorrect(storeTableRow)) {
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                    cell.setTooltip(null);
+                    System.out.println("white appdata " + cell.getIndex());
+                } else {
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                    cell.setTooltip(tooltip);
+                    System.out.println("white appdata " + cell.getIndex());
+                }
             }
         }
     }
@@ -332,6 +375,7 @@ public class OverviewController implements Initializable {
 
         Tooltip tooltip = new Tooltip("Сумма остатка и расходов не равна наличным");
         tooltip.setShowDelay(new Duration(150));
+        tooltip.setFont(Font.font(14));
 
         TextFieldTableCell<StoreTableRow, Integer> cell = new TextFieldTableCell<>(){
             @Override
@@ -348,6 +392,8 @@ public class OverviewController implements Initializable {
                             setTooltip(tooltip);
                         }
                     }
+                } else {
+                    setBackground(new Background(new BackgroundFill(Color.web("#FFFFFF", 0.0), null, null)));
                 }
             }
         };
@@ -360,17 +406,18 @@ public class OverviewController implements Initializable {
     }
 
     private void updateCashBalanceBackground(TextFieldTableCell<StoreTableRow, Integer> cell, Tooltip tooltip){
-        //if(cell.getTableRow().getItem() != null) {
-        //if (isCashBalanceCorrect(cell.getTableRow().getItem())) {
-        if(cell.getTableView().getItems().size() > 0 && cell.getIndex() >= 0) {
-            StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
 
-            if (isCashBalanceCorrect(storeTableRow)) {
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
-                cell.setTooltip(null);
-            } else {
-                cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-                cell.setTooltip(tooltip);
+        if(cell.getTableView().getItems().size() > 0 && cell.getIndex() >= 0) {
+            if(cell.getIndex() < appData.getStoreTable().size()) {
+                StoreTableRow storeTableRow = cell.getTableView().getItems().get(cell.getIndex());
+
+                if (isCashBalanceCorrect(storeTableRow)) {
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
+                    cell.setTooltip(null);
+                } else {
+                    cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                    cell.setTooltip(tooltip);
+                }
             }
         }
     }
@@ -378,6 +425,28 @@ public class OverviewController implements Initializable {
     private boolean isCashBalanceCorrect(StoreTableRow storeTableRow){
 
         return storeTableRow.getCash() == storeTableRow.getExpenses().stream().mapToInt(Expense::getAmount).sum() + storeTableRow.getCashBalance();
+    }
+
+    @FXML
+    private void addRow(){
+        LocalDate date = appData.getCurrentStore().getStoreTable().get(appData.getCurrentStore().getStoreTable().size() - 1).getDate().minusDays(1);
+        StoreTableRow storeTableRow = new StoreTableRow(
+                date,
+                new Employee(""),
+                0, 0, 0, 0,
+                FXCollections.observableArrayList(expense -> new Observable[]{expense.expenseTypeProperty(), expense.purposeProperty()})
+        );
+        appData.getCurrentStore().addStoreTableRow(storeTableRow);
+        appData.fillStoreTable();
+    }
+
+    @FXML
+    private void removeRow(){
+
+        if(appData.getCurrentStore().getStoreTable().size() > 1) {
+            appData.getCurrentStore().removeStoreTableRow(appData.getCurrentStore().getStoreTable().size() - 1);
+            appData.fillStoreTable();
+        }
     }
 
     @FXML

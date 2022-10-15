@@ -99,7 +99,7 @@ public class AppData {
         }
     }
 
-    private void fillStoreTable(){
+    public void fillStoreTable(){
 
         for(Store store : stores){
             if(store.equals(currentStore)){
