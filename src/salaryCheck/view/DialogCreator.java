@@ -154,4 +154,20 @@ public class DialogCreator {
             e.printStackTrace();
         }
     }
+
+    public void showEmployeeOverview(Stage owner, Employee employee){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeDetailsOverview.fxml"));
+        try {
+            Stage stage = createDialog(loader, "Остаток по зарплате", owner, new Image("salaryCheck\\sources\\images\\user.png"));
+
+            EmployeeDetailsOverviewController employeeDetailsOverviewController = loader.getController();
+            employeeDetailsOverviewController.setDialogStage(stage);
+            employeeDetailsOverviewController.setEmployee(employee);
+
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

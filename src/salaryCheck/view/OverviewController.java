@@ -152,6 +152,9 @@ public class OverviewController implements Initializable {
         employeeTableColumn.setCellFactory(comboBoxTableColumn -> employeeSellCreator());
         employeeTableColumn.setOnEditCommit(editEvent ->{
             StoreTableRow currentRow = ((StoreTableRow)editEvent.getTableView().getItems().get(editEvent.getTablePosition().getRow()));
+            // todo если выбрать одного и того же сотрудника в на разных магазинах в один день, клетки красным цветом покажут,
+            //  что есть ошибка. При этом, если потом исправить и выбрать нужного сотрудника, рабочий день первого может быть стёрт.
+            //  Кроме того хотелось бы реализовать возможность работать в один день двум сотрудникам: дневная и ночная смены. 
             // удаляем рабочий день у сотрудника, который был выбран до этого
             if(editEvent.getOldValue() != null){
                 editEvent.getOldValue().removeWorkDay(currentRow.getDate());
@@ -177,7 +180,7 @@ public class OverviewController implements Initializable {
         cashBalanceTableColumn.setCellFactory(integerTableColumn -> cashBalanceCellCreator());
         cashBalanceTableColumn.setOnEditCommit(editEvent -> editEvent.getRowValue().setCashBalance(editEvent.getNewValue()));
 
-        expensesTableColumn.setCellFactory(storeTableRowStringTableColumn -> new TextFieldTableCell<>() {
+        expensesTableColumn.setCellFactory(stringTableColumn -> new TextFieldTableCell<>() {
             @Override
             public void startEdit() {
                 //super.startEdit();
@@ -269,14 +272,30 @@ public class OverviewController implements Initializable {
             public void updateItem(Employee employee, boolean b) {
                 super.updateItem(employee, b);
 
+                Tooltip tooltip = new Tooltip("Не выбран сотрудник");
+                tooltip.setShowDelay(new Duration(150));
+                tooltip.setFont(Font.font(14));
+
                 if (employee != null){
                     if (employee.getName().equals("")) {
                         setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
-                        Tooltip tooltip = new Tooltip("Не выбран сотрудник");
-                        tooltip.setShowDelay(new Duration(150));
-                        tooltip.setFont(Font.font(14));
                         setTooltip(tooltip);
-                    } else {
+                    } else { // todo мне не нравятся такие громоздкие конструкции из множества вложенных циклов и ветвлений
+                        if(getTableRow().getItem() != null) {
+                            for (Store store : appData.getStores()) {
+                                if (!store.equals(appData.getCurrentStore())) {
+                                    for (StoreTableRow storeTableRow : store.getStoreTable()) {
+                                        if (getTableRow().getItem().getDate().equals(storeTableRow.getDate())
+                                                && getTableRow().getItem().getEmployee().getName().equals(storeTableRow.getEmployee().getName())) {
+                                            tooltip.setText("Сотрудник уже работал в этот день в магазине " + store);
+                                            setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
+                                            setTooltip(tooltip);
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
                         setTooltip(null);
                     }
@@ -326,16 +345,13 @@ public class OverviewController implements Initializable {
                         if (isAllFeeBalanceCorrect(getTableRow().getItem())) {
                             setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
                             setTooltip(null);
-                            System.out.println("green cell  " + getIndex());
                         } else {
                             setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
                             setTooltip(tooltip);
-                            System.out.println("red cell " + getIndex());
                         }
                     }
                 } else {
                     setBackground(new Background(new BackgroundFill(Color.web("#FFFFFF", 0.0), null, null)));
-                    System.out.println("white cell " + getIndex());
                 }
             }
         };
@@ -356,11 +372,9 @@ public class OverviewController implements Initializable {
                 if (isAllFeeBalanceCorrect(storeTableRow)) {
                     cell.setBackground(new Background(new BackgroundFill(Color.web("#67E667", 0.5), null, null)));
                     cell.setTooltip(null);
-                    System.out.println("white appdata " + cell.getIndex());
                 } else {
                     cell.setBackground(new Background(new BackgroundFill(Color.web("#FF7373", 0.5), null, null)));
                     cell.setTooltip(tooltip);
-                    System.out.println("white appdata " + cell.getIndex());
                 }
             }
         }
@@ -444,6 +458,7 @@ public class OverviewController implements Initializable {
     private void removeRow(){
 
         if(appData.getCurrentStore().getStoreTable().size() > 1) {
+            appData.getCurrentStore().getStoreTable().get(appData.getCurrentStore().getStoreTable().size() - 1).clearRow();
             appData.getCurrentStore().removeStoreTableRow(appData.getCurrentStore().getStoreTable().size() - 1);
             appData.fillStoreTable();
         }
@@ -455,7 +470,8 @@ public class OverviewController implements Initializable {
         // Удалять строку целиком я не буду, потому что все даты должны оставаться в таблице
         //storeTableView.getItems().remove(selectedRow);
         if(selectedRow >= 0) {
-            storeTableView.getItems().get(selectedRow).clearRow(appData.getStoreTable(), selectedRow);
+            //storeTableView.getItems().get(selectedRow).clearRow(appData.getStoreTable(), selectedRow);
+            appData.getStoreTable().get(selectedRow).clearRow();
         }
     }
 

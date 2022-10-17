@@ -187,13 +187,14 @@ public class StoreTableRow {
 
 
 
-    public void clearRow(List<StoreTableRow> storeTableRowList, int rowNumber){
+    public void clearRow(){
         setEmployee(new Employee(""));
         setAllFee(0);
         setNonCash(0);
         setCash(0);
         ObservableList<Expense> emptyExpensesList = FXCollections.observableArrayList();
-        storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);
+        setExpenses(emptyExpensesList);
+        //storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);
         setCashBalance(0);
     }
 }

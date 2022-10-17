@@ -33,11 +33,11 @@ public class Store {
                 storeTableRow.cashBalanceProperty()
         });
         // todo здесь оставить добавлениетолько одной строки, и сделать кнопку для добавления сткрок
-        for(int i = 0; i < 30; i++){
+        //for(int i = 0; i < 30; i++){
             StoreTableRow storeTableRow = new StoreTableRow();
-            storeTableRow.setDate(LocalDate.now().minusDays(i));
+            //storeTableRow.setDate(LocalDate.now().minusDays(i));
             this.addStoreTableRow(storeTableRow);
-        }
+        //}
         //this.isActive = true;
         this.isActive = new SimpleBooleanProperty(true);
     }

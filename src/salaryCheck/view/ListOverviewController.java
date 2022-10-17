@@ -100,6 +100,18 @@ public class ListOverviewController implements Initializable {
     }
 
     @FXML
+    private void handleShowDetailsButton(){
+        Tab selectedTab = tabPane.getSelectionModel().selectedItemProperty().get();
+        Employee employee = employeeListView.getSelectionModel().getSelectedItem();
+
+        if(selectedTab.equals(employeesTab)) {
+            if (employeeListView.getSelectionModel().getSelectedItem() != null) {
+                dialogCreator.showEmployeeOverview(dialogStage, employee);
+            }
+        }
+    }
+
+    @FXML
     private void handleAddButton(){
 
         Tab selectedTab = tabPane.getSelectionModel().selectedItemProperty().get();
