@@ -14,11 +14,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import salaryCheck.model.*;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -27,7 +30,7 @@ public class ExpensesEditDialogController implements Initializable {
     private final int AMOUNT_COLUMN = 0;
     private final int PURPOSES_COLUMN = 1;
     private final AppData appData;
-    private StoreTableRow storeTableRow;
+    private StoreTableRow currentStoreTableRow;
 
     private Stage dialogStage;
 
@@ -50,13 +53,13 @@ public class ExpensesEditDialogController implements Initializable {
 
     public void setRow(StoreTableRow storeTableRow) {
 
-        this.storeTableRow = storeTableRow;
+        this.currentStoreTableRow = storeTableRow;
         fillGridPane();
     }
 
     private void fillGridPane(){
 
-        ObservableList<Expense> expenses = storeTableRow.getExpenses();
+        ObservableList<Expense> expenses = currentStoreTableRow.getExpenses();
 
         for(Expense expense : expenses){
             addGridRow(false);
@@ -70,6 +73,10 @@ public class ExpensesEditDialogController implements Initializable {
                     if (columnIndex != null) {
                         if(columnIndex == AMOUNT_COLUMN) {
                             ((TextField) child).setText(expense.getAmount().toString());
+                            if(!expense.isCorrect()){
+                                ((TextField) child).setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.RED));
+                                ((TextField) child).setTooltip(StandardStyles.getTooltip("Забрано больше, чем заработано"));
+                            }
                         } else
                         // PURPOSES_COLUMN колонка - HBox с расходом, состоит из choiceBox'ов и одного textField'а
                         if(columnIndex == PURPOSES_COLUMN){
@@ -82,10 +89,7 @@ public class ExpensesEditDialogController implements Initializable {
                             if(expense.getExpenseType().getName().equals("Зарплата")) {
 
                                 ((ChoiceBox<Employee>) hBoxChildren.get(1)).setValue(expense.getEmployee());
-                                ((ChoiceBox<Store>) hBoxChildren.get(2)).setValue(
-                                        appData.getStores().stream().filter(item ->
-                                                item.getName().equals(expense.getStore())
-                                        ).findAny().orElse(null));
+                                ((ChoiceBox<Store>) hBoxChildren.get(2)).setValue(expense.getStore());
                                 ((ChoiceBox<LocalDate>) hBoxChildren.get(3)).setValue(expense.getDate());
                             }
                             ((TextField) hBoxChildren.get( hBoxChildren.size() - 1 )).setText(expense.getComment());
@@ -130,6 +134,22 @@ public class ExpensesEditDialogController implements Initializable {
         ChoiceBox<Employee> employeeChoiceBox = new ChoiceBox<>();
         ChoiceBox<Store> storeChoiceBox = new ChoiceBox<>();
         ChoiceBox<LocalDate> dateChoiceBox = new ChoiceBox<>();
+        dateChoiceBox.setConverter(new StringConverter<LocalDate>() {
+            @Override
+            public String toString(LocalDate date) {
+                if(date == null){
+                    return null;
+                }
+
+                return date.format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru")));
+            }
+            @Override
+            public LocalDate fromString(String s) {
+                return LocalDate.parse(s, DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru")));
+            }
+        });
+
+
         ChoiceBox<ExpenseType> expenseTypeChoiceBox = new ChoiceBox<>();
         HBox hBox = new HBox();
 
@@ -146,21 +166,28 @@ public class ExpensesEditDialogController implements Initializable {
         storeChoiceBox.setValue(appData.getCurrentStore());
 
 
-        // todo одинаковые лямбды надо вынести отдельно
-        storeChoiceBox.setOnAction(actionEvent ->
-                dateChoiceBox.setItems( FXCollections.observableArrayList(
-                        employeeChoiceBox.getValue().getWorkDays().entrySet().stream().filter(entry ->
-                                entry.getValue().equals(storeChoiceBox.getValue())
-                        ).map(Map.Entry::getKey).toList()
-                )));
+        EventHandler<ActionEvent> updateDateChoiceBox = actionEvent ->{
 
-        // todo селать проверку зп
-        employeeChoiceBox.setOnAction( actionEvent ->
-                dateChoiceBox.setItems( FXCollections.observableArrayList(
-                        employeeChoiceBox.getValue().getWorkDays().entrySet().stream().filter(entry ->
-                                entry.getValue().equals(storeChoiceBox.getValue())
-                        ).map(Map.Entry::getKey).toList()
-                )));
+            ObservableList<LocalDate> dateList = FXCollections.observableArrayList(
+                    employeeChoiceBox.getValue().getWorkDays().entrySet().stream().filter(
+                            entry -> entry.getValue().equals( storeChoiceBox.getValue() )
+                    ).filter(entry -> {
+
+                        Store entryStore = entry.getValue();
+                        LocalDate entryDate = entry.getKey();
+                        Employee employee = employeeChoiceBox.getValue();
+
+                        int paymentBalance = calculatePaymentBalance(employee, entryStore, entryDate, false);
+
+                        return paymentBalance > 0;
+                    }).map(Map.Entry::getKey).toList()
+            );
+            dateChoiceBox.setItems(dateList);
+        };
+
+        storeChoiceBox.setOnAction( updateDateChoiceBox );
+
+        employeeChoiceBox.setOnAction( updateDateChoiceBox );
 
 
         employeeChoiceBox.setMinWidth(80);
@@ -194,6 +221,7 @@ public class ExpensesEditDialogController implements Initializable {
          * */
 
         TextField commentTextField = new TextField();
+        commentTextField.setPromptText("Введите комментарий...");
         hBox.getChildren().add(commentTextField);
 
         HBox.setHgrow(commentTextField, Priority.ALWAYS);
@@ -214,6 +242,34 @@ public class ExpensesEditDialogController implements Initializable {
         ImageView minus = new ImageView("salaryCheck\\sources\\images\\minus.png");
         expensesGridPane.add(minus, column++, rowsNumber);
         minus.setOnMouseClicked(mouseEvent -> removeGridRow(rowsNumber));
+    }
+
+    private int calculatePaymentBalance(Employee employee, Store entryStore, LocalDate entryDate, boolean withoutCurrentTableRow){
+
+        StoreTableRow entryStoreTableRow = entryStore.getStoreTable().stream().filter(tableRow -> tableRow.getDate().equals(entryDate)).findAny().orElse(new StoreTableRow());
+
+        int dayFee = entryStoreTableRow.getAllFee();
+        int dayPay = entryStore.getShiftPay() + entryStore.getCleaningPay() + (int)(entryStore.getSalesPercentage() * dayFee);
+
+        int gotPayment = 0;
+
+        for(Store store : appData.getStores()){
+            for(StoreTableRow storeTableRow : store.getStoreTable()){
+                if(!withoutCurrentTableRow || !storeTableRow.equals(currentStoreTableRow)) {
+                    for (Expense expense : storeTableRow.getExpenses()) {
+                        if (expense.getExpenseType().getName().equals("Зарплата") &&
+                                expense.getEmployee().getName().equals(employee.getName()) &&
+                                expense.getDate().equals(entryDate)) {
+                            gotPayment += expense.getAmount();
+                        }
+                    }
+                }
+            }
+        }
+
+        int paymentBalance = dayPay - gotPayment;
+
+        return paymentBalance;
     }
 
     @FXML
@@ -237,11 +293,10 @@ public class ExpensesEditDialogController implements Initializable {
     }
 
     /*
-    * todo сделать валидацию интеджеров
+    * Метод Integer.parseInt() сам прекрасно справляется с валидацией
     * */
-
-    private boolean validateAmount(){
-        return true;
+    private boolean validateAmount(int amount){
+        return amount > 0;
     }
 
     // todo здесь вставить проверку на null
@@ -253,15 +308,23 @@ public class ExpensesEditDialogController implements Initializable {
         ObservableList<Node> children = expensesGridPane.getChildren();
         Expense tempExpense = new Expense();
 
+        int amount = 0;
+        TextField amountTextField = new TextField();
+
         for(Node child : children){
             Integer columnIndex = GridPane.getColumnIndex(child);
             if(columnIndex != null){
                 String inputString = "";
                 if(columnIndex == AMOUNT_COLUMN) {
                     inputString = ((TextField) child).getText();
-                    int amount = Integer.parseInt(inputString);
-                    if (validateAmount()) {
-                        tempExpense.setAmount(amount);
+                    int amount1 = Integer.parseInt(inputString);
+                    if ( validateAmount(amount1) ) {
+                        tempExpense.setAmount(amount1);
+                        // todo new
+                        amountTextField = (TextField)child;
+                        amount = Integer.parseInt(((TextField)child).getText());
+                    } else {
+                        return false;
                     }
                 }
                 // PURPOSES_COLUMN колонка - HBox с расходом, состоит из одного или нескольких choiceBox'ов и одного textField'а
@@ -272,12 +335,31 @@ public class ExpensesEditDialogController implements Initializable {
                         if(hBoxChild instanceof ChoiceBox<?>){
                             if(((ChoiceBox<?>)hBoxChild).getValue() instanceof ExpenseType) {
                                 tempExpense.setExpenseType(((ChoiceBox<ExpenseType>)hBoxChild).getValue());
+                                // todo new
+                                if(((ChoiceBox<ExpenseType>) hBoxChildren.get(0)).getValue().getName().equals("Зарплата")) {
+
+                                    Employee employee = ((ChoiceBox<Employee>) hBoxChildren.get(1)).getValue();
+                                    Store entryStore = ((ChoiceBox<Store>) hBoxChildren.get(2)).getValue();
+                                    LocalDate entryDate = ((ChoiceBox<LocalDate>) hBoxChildren.get(3)).getValue();
+
+                                    int paymentBalance = calculatePaymentBalance(employee, entryStore, entryDate, true);
+
+                                    if(paymentBalance - amount >= 0){
+                                        amountTextField.setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.TRANSIENT));
+                                        amountTextField.setTooltip(null);
+                                        tempExpense.setIsCorrect(true);
+                                    } else {
+                                        amountTextField.setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.RED));
+                                        amountTextField.setTooltip(StandardStyles.getTooltip("Забрано больше, чем заработано"));
+                                        tempExpense.setIsCorrect(false);
+                                    }
+                                }
                             } else
                             if(((ChoiceBox<?>)hBoxChild).getValue() instanceof Employee){
                                 tempExpense.setEmployee(((ChoiceBox<Employee>)hBoxChild).getValue());
                             } else
                             if (((ChoiceBox<?>)hBoxChild).getValue() instanceof Store) {
-                                tempExpense.setStore(((ChoiceBox<Store>)hBoxChild).getValue().getName());
+                                tempExpense.setStore(((ChoiceBox<Store>)hBoxChild).getValue());
                             } else
                             if (((ChoiceBox<?>)hBoxChild).getValue() instanceof LocalDate) {
                                 tempExpense.setDate(((ChoiceBox<LocalDate>)hBoxChild).getValue());
@@ -308,8 +390,8 @@ public class ExpensesEditDialogController implements Initializable {
             }
         }
 
-        storeTableRow.getExpenses().clear();
-        storeTableRow.addAllExpenses(tempExpenses);
+        currentStoreTableRow.getExpenses().clear();
+        currentStoreTableRow.addAllExpenses(tempExpenses);
 
         return true;
     }

@@ -4,15 +4,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 import salaryCheck.model.*;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class EmployeeDetailsOverviewController implements Initializable {
@@ -21,6 +24,7 @@ public class EmployeeDetailsOverviewController implements Initializable {
     private final AppData appData;
     private Employee employee;
     private ObservableList<EmployeeDetailsTableRow> employeeDetailsRowList;
+    private ObservableList<EmployeeDetailsTableRow> allEmployeeDetailsRowList;
 
     @FXML
     private Label employeeLabel;
@@ -42,6 +46,7 @@ public class EmployeeDetailsOverviewController implements Initializable {
     public EmployeeDetailsOverviewController() {
         this.appData = AppData.getInstance();
         employeeDetailsRowList = FXCollections.observableArrayList();
+        allEmployeeDetailsRowList = FXCollections.observableArrayList();
     }
 
     public void setDialogStage(Stage dialogStage) {
@@ -50,7 +55,7 @@ public class EmployeeDetailsOverviewController implements Initializable {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
-        employeeLabel.setText(employee.getName());
+        employeeLabel.setText("Рабочие дни " + employee.getName());
         fillEmployeeDetailsTable();
     }
 
@@ -65,10 +70,56 @@ public class EmployeeDetailsOverviewController implements Initializable {
         dayPayTableColumn.setCellValueFactory(cellData -> cellData.getValue().dayPayProperty().asObject());
         gotPaymentTableColumn.setCellValueFactory(cellData -> cellData.getValue().alreadyGotPaymentProperty());
         paymentBalanceTableColumn.setCellValueFactory(cellData -> cellData.getValue().daySalaryBalanceProperty().asObject());
+
+        dateTableColumn.setCellFactory(dateTableColumn -> {
+
+            TextFieldTableCell<EmployeeDetailsTableRow, LocalDate> cell = new TextFieldTableCell<>();
+            cell.setConverter(new StringConverter<LocalDate>() {
+                @Override
+                public String toString(LocalDate date) {
+                    return date.format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru")));
+                }
+
+                @Override
+                public LocalDate fromString(String s) {
+                    return LocalDate.parse(s, DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru")));
+                }
+            });
+            return cell;
+        });
+        paymentBalanceTableColumn.setCellFactory(new Callback<TableColumn<EmployeeDetailsTableRow, Integer>, TableCell<EmployeeDetailsTableRow, Integer>>() {
+            @Override
+            public TableCell<EmployeeDetailsTableRow, Integer> call(TableColumn<EmployeeDetailsTableRow, Integer> employeeDetailsTableRowIntegerTableColumn) {
+                TextFieldTableCell<EmployeeDetailsTableRow, Integer> cell = new TextFieldTableCell<>(){
+                    @Override
+                    public void updateItem(Integer integer, boolean b) {
+                        super.updateItem(integer, b);
+
+                        if(integer != null) {
+                            if (integer < 0) {
+                                setBackground( StandardStyles.getBackground(StandardStyles.StandardBackgrounds.RED) );
+                                setTooltip( StandardStyles.getTooltip("Отрицательный остаток: забрано больше, чем нужно") );
+                            } else if(integer == 0){
+                                setBackground( StandardStyles.getBackground(StandardStyles.StandardBackgrounds.GREEN) );
+                                setTooltip(null);
+                            } else {
+                                setBackground( StandardStyles.getBackground(StandardStyles.StandardBackgrounds.TRANSIENT) );
+                                setTooltip(null);
+                            }
+                        } else {
+                            // туту надо, иначе цвет может не обновиться после нажатия "показать/скрыть все смены"
+                            setBackground( StandardStyles.getBackground(StandardStyles.StandardBackgrounds.TRANSIENT) );
+                            setTooltip(null);
+                        }
+                    }
+                };
+                //cell.setConverter(new IntegerStringConverter());
+                return cell;
+            }
+        });
     }
 
     private void fillEmployeeDetailsTable(){
-
 
         employee.getWorkDays().forEach((entryDate, entryStore) -> {
             EmployeeDetailsTableRow employeeDetailsTableRow = new EmployeeDetailsTableRow();
@@ -93,7 +144,8 @@ public class EmployeeDetailsOverviewController implements Initializable {
                                 expense.getEmployee().getName().equals(employee.getName()) &&
                                 expense.getDate().equals(entryDate)) {
                             gotPayment += expense.getAmount();
-                            gotPaymentOverviewBuilder.append(expense.getAmount() + " - на магазине " + store.getName() + " " + expense.getDate() + ";\n");
+                            gotPaymentOverviewBuilder.append(expense.getAmount() + " - на магазине " + store.getName() + " " +
+                                    storeTableRow.getDate().format(DateTimeFormatter.ofPattern("dd-го MMM yyyy", Locale.forLanguageTag("ru"))) + ";\n");
                         }
                     }
                 }
@@ -104,10 +156,23 @@ public class EmployeeDetailsOverviewController implements Initializable {
             int paymentBalance = dayPay - gotPayment;
             employeeDetailsTableRow.setDaySalaryBalance(paymentBalance);
 
-            employeeDetailsRowList.add(employeeDetailsTableRow);
+            if(paymentBalance != 0) {
+                employeeDetailsRowList.add(employeeDetailsTableRow);
+            }
+            allEmployeeDetailsRowList.add(employeeDetailsTableRow);
         });
 
-        employeeDetailsRowList.sort(Comparator.comparing(EmployeeDetailsTableRow::getDate));
+        employeeDetailsRowList.sort(Comparator.comparing(EmployeeDetailsTableRow::getDate).reversed());
+        allEmployeeDetailsRowList.sort(Comparator.comparing(EmployeeDetailsTableRow::getDate).reversed());
+    }
+
+    @FXML
+    private void handleShowHideAllShiftsButton(){
+        if(employeeDetailsTableView.getItems().equals(employeeDetailsRowList)){
+            employeeDetailsTableView.setItems(allEmployeeDetailsRowList);
+        } else {
+            employeeDetailsTableView.setItems(employeeDetailsRowList);
+        }
     }
 
     @FXML

@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Класс для записи значений в таблицу
@@ -23,8 +22,6 @@ public class StoreTableRow {
     private IntegerProperty nonCash;
     private IntegerProperty cash;
     private IntegerProperty cashBalance;
-
-    //private ListProperty<Expense> expenses;
     private ObservableList<Expense> expenses;
 
     /**
@@ -34,7 +31,14 @@ public class StoreTableRow {
         this(LocalDate.now(),
                 new Employee(""),
                 0, 0, 0, 0,
-                FXCollections.observableArrayList(expense -> new Observable[]{expense.expenseTypeProperty(), expense.purposeProperty()}));
+                FXCollections.observableArrayList( expense -> new Observable[]{
+                        expense.expenseTypeProperty(),
+                        expense.employeeProperty(),
+                        expense.storeProperty(),
+                        expense.purposeProperty(),
+                        expense.isCorrectProperty()
+                } )
+        );
     }
 
     /**
@@ -60,7 +64,6 @@ public class StoreTableRow {
         this.nonCash = new SimpleIntegerProperty(nonCash);
         this.cash = new SimpleIntegerProperty(cash);
         this.cashBalance = new SimpleIntegerProperty(cashBalance);
-        //this.expenses = new SimpleListProperty<>(expenses);
         this.expenses = FXCollections.observableArrayList(expenses);
     }
 
@@ -158,15 +161,9 @@ public class StoreTableRow {
 
     @XmlElementWrapper(name = "expenses")
     @XmlElement(name = "expense")
-//    public ObservableList<Expense> getExpenses() {
-//        return expenses.get();
-//    }
     public ObservableList<Expense> getExpenses() {
         return expenses;
     }
-//    public ListProperty<Expense> expensesProperty() {
-//        return expenses;
-//    }
 
     public void setExpenses(ObservableList<Expense> expenses) {
         this.expenses.setAll(expenses);
@@ -194,7 +191,6 @@ public class StoreTableRow {
         setCash(0);
         ObservableList<Expense> emptyExpensesList = FXCollections.observableArrayList();
         setExpenses(emptyExpensesList);
-        //storeTableRowList.get(rowNumber).setExpenses(emptyExpensesList);
         setCashBalance(0);
     }
 }

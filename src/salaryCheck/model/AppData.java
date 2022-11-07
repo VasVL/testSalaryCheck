@@ -2,6 +2,7 @@ package salaryCheck.model;
 
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import javax.xml.bind.annotation.*;
@@ -36,9 +37,41 @@ public class AppData {
                 storeTableRow.getExpenses(),
                 storeTableRow.cashBalanceProperty()
         });
-        stores = FXCollections.observableArrayList(store -> new Observable[]{store.isActiveProperty()});
+        stores = FXCollections.observableArrayList(store -> new Observable[]{store.isActiveProperty(), store.getStoreTable(), store.nameProperty()});
         employees = FXCollections.observableArrayList(employee -> new Observable[]{employee.isActiveProperty(), employee.nameProperty()});
         expenseTypes = FXCollections.observableArrayList(expenseType -> new Observable[]{expenseType.isActiveProperty(), expenseType.nameProperty()});
+
+        stores.addListener(new ListChangeListener<Store>() {
+            @Override
+            public void onChanged(Change<? extends Store> change) {
+                while(change.next()){
+                    if(change.wasUpdated() || change.wasRemoved()){
+                        for(Employee employee : employees) {
+                            employee.setSalaryBalance(0);
+                            for (Store store : stores) {
+                                for (StoreTableRow storeTableRow : store.getStoreTable()) {
+                                    for(Expense expense : storeTableRow.getExpenses()){
+                                        if(expense.getExpenseType().getName().equals("Зарплата")){
+                                            if( expense.getEmployee().getName().equals(employee.getName())) {
+                                                employee.addSalaryBalance(-expense.getAmount());
+                                            }
+                                        }
+
+                                    }
+                                    if(storeTableRow.getEmployee().getName().equals(employee.getName())){
+                                        employee.addWorkDay(storeTableRow.getDate(), store);
+                                        employee.addSalaryBalance(
+                                                store.getShiftPay() +
+                                                        store.getCleaningPay() +
+                                                        (int)(store.getSalesPercentage() * storeTableRow.getAllFee()) );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public static AppData getInstance(){
@@ -54,7 +87,7 @@ public class AppData {
     }
 
 
-    public void fillStoreTables(){ // todo сюда же добавить подсчёт остатка по зп
+    public void updateStoreTables(){
 
         if(!isExpenseTypesContains("Зарплата")){
             expenseTypes.add(0, new ExpenseType("Зарплата"));
@@ -68,19 +101,18 @@ public class AppData {
                             if( expense.getExpenseType().getName().equals(expenseType.getName()) ){
                                 expense.setExpenseType(expenseType);
                             }
-                        } // todo expense.getExpenseType().getName()
-                        if(expense.getEmployee() != null && expense.getEmployee().getName().equals(employee.getName())){
-                            expense.setEmployee(employee);
-                            employee.addSalaryBalance(-expense.getAmount());
+                        }
+                        if(expense.getExpenseType().getName().equals("Зарплата")){
+                            if(expense.getEmployee().getName().equals(employee.getName())) {
+                                expense.setEmployee(employee);
+                            }
+                                expense.setStore(
+                                        stores.stream().filter(store1 -> store1.getName().equals(expense.getStoreName())).findAny().orElse(null)
+                                );
                         }
                     }
                     if( tableRow.getEmployee().getName().equals(employee.getName()) ){
                         tableRow.setEmployee(employee);
-                        employee.addWorkDay(tableRow.getDate(), store);
-                        employee.addSalaryBalance(
-                                store.getShiftPay() +
-                                store.getCleaningPay() +
-                                (int)(store.getSalesPercentage() * tableRow.getAllFee()) );
                     }
                 }
             }

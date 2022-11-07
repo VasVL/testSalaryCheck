@@ -13,12 +13,9 @@ import java.time.LocalDate;
 
 public class Employee {
 
-    //private String name;
     private StringProperty name;
     // todo подумать, нужно ли хранить это или можно рассчитывать каждый раз (пока хочу рассчитывать после инициализации XML-документа)
     private ObservableMap<LocalDate, Store> workDays;
-
-    // Это не буду синхронизовать
 
     private Integer salaryBalance;
 
@@ -29,24 +26,19 @@ public class Employee {
     }
 
     public Employee(String name) {
-        //this.name = name;
         this.name = new SimpleStringProperty(name);
         this.workDays = FXCollections.observableHashMap();
         this.salaryBalance = 0;
         this.isActive = new SimpleBooleanProperty(true);
     }
 
-//    public String getName() {
-//        return name;
-//    }
+
+
     public String getName() {
         return name.getValue();
     }
 
     @XmlElement(name = "name")
-//    public void setName(String name) {
-//        this.name = name;
-//    }
     public void setName(String name) {
         this.name.setValue(name);
     }
@@ -55,9 +47,8 @@ public class Employee {
         return this.name;
     }
 
-    public ObservableMap<LocalDate, Store> getWorkDays() {
-        return workDays;
-    }
+
+
 
     @XmlElement(name = "isActive")
     public boolean getActive() {
@@ -72,9 +63,16 @@ public class Employee {
         this.isActive.set(isActive);
     }
 
+
+
+
     @XmlTransient
     public void setWorkDays(ObservableMap<LocalDate, Store> workDays) {
         this.workDays = workDays;
+    }
+
+    public ObservableMap<LocalDate, Store> getWorkDays() {
+        return workDays;
     }
 
     public void addWorkDay(LocalDate date, Store store){
@@ -85,20 +83,26 @@ public class Employee {
         workDays.remove(date);
     }
 
+
+
+
     @XmlTransient
     public Integer getSalaryBalance() {
-
         return salaryBalance;
+    }
+
+    public void setSalaryBalance(Integer salaryBalance) {
+        this.salaryBalance = salaryBalance;
     }
 
     public void addSalaryBalance(int amount){
         this.salaryBalance += amount;
     }
 
+
+
+
     @Override
-//    public String toString() {
-//        return name;
-//    }
     public String toString() {
         return name.getValue();
     }

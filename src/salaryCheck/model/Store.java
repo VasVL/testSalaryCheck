@@ -3,20 +3,20 @@ package salaryCheck.model;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.time.LocalDate;
 
 public class Store {
 
-    private String name;
+    private StringProperty name;
     private Integer shiftPay;
     private Integer cleaningPay;
     private Double salesPercentage;
-    //private boolean isActive;
     private BooleanProperty isActive;
 
     private ObservableList<StoreTableRow> storeTable;
@@ -25,6 +25,7 @@ public class Store {
 
         //this("Неизвестный магазин", 1200, 200, 0.06);
         this.storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
+                storeTableRow.employeeProperty(),
                 storeTableRow.allFeeProperty(),
                 storeTableRow.nonCashProperty(),
                 storeTableRow.cashProperty(),
@@ -32,32 +33,33 @@ public class Store {
                 storeTableRow.getExpenses(),
                 storeTableRow.cashBalanceProperty()
         });
-        // todo здесь оставить добавлениетолько одной строки, и сделать кнопку для добавления сткрок
-        //for(int i = 0; i < 30; i++){
-            StoreTableRow storeTableRow = new StoreTableRow();
-            //storeTableRow.setDate(LocalDate.now().minusDays(i));
-            this.addStoreTableRow(storeTableRow);
-        //}
-        //this.isActive = true;
+
+        StoreTableRow storeTableRow = new StoreTableRow();
+        this.addStoreTableRow(storeTableRow);
+
+        this.name = new SimpleStringProperty();
         this.isActive = new SimpleBooleanProperty(true);
     }
 
     public Store(String name, Integer shiftPay, Integer cleaningPay, Double salesPercentage) {
         this();
-        this.name = name;
+        this.name.setValue(name);
         this.shiftPay = shiftPay;
         this.cleaningPay = cleaningPay;
         this.salesPercentage = salesPercentage;
-        //this.storeTable = FXCollections.observableArrayList();
     }
 
     public String getName() {
-        return name;
+        return name.getValue();
     }
 
     @XmlElement(name = "name")
     public void setName(String name) {
-        this.name = name;
+        this.name.setValue(name);
+    }
+
+    public StringProperty nameProperty(){
+        return name;
     }
 
 
@@ -129,6 +131,6 @@ public class Store {
 
     @Override
     public String toString() {
-        return name;
+        return name.getValue();
     }
 }

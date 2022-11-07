@@ -67,7 +67,7 @@ public class ListOverviewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+// todo Добавить архив для возможности восстановления магазина / сотрудника / расхода
         storeListView.setItems( appData.getStores().filtered(Store::getActive) );
         employeeListView.setItems( appData.getEmployees().filtered(Employee::getActive) );
         expenseTypeListView.setItems( appData.getExpenseTypes().filtered(ExpenseType::getActive) );
@@ -155,7 +155,12 @@ public class ListOverviewController implements Initializable {
 
         if(selectedTab.equals(storesTab)){
             if(storeListView.getSelectionModel().getSelectedItem() != null) {
-                storeListView.getSelectionModel().getSelectedItem().setActive(false);
+                Store store = storeListView.getSelectionModel().getSelectedItem();
+
+                if(store.equals(appData.getCurrentStore())){
+                    appData.getStoreTable().clear();
+                }
+                store.setActive(false);
             }
         } else if(selectedTab.equals(employeesTab)) {
             if(employeeListView.getSelectionModel().getSelectedItem() != null){
