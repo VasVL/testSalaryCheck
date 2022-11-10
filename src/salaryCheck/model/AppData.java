@@ -6,6 +6,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import javax.xml.bind.annotation.*;
+import java.io.File;
 import java.time.LocalDate;
 
 @XmlType(factoryClass = AppData.class, factoryMethod = "getInstance", propOrder = {"stores", "employees", "expenseTypes"})
@@ -14,8 +15,9 @@ public class AppData {
 
     private static volatile AppData instance;
 
-    private Store currentStore;
+    private final File appDataPath = new File("AppData.xml"); // В main'е то же самое
 
+    private Store currentStore;
 
     private ObservableList<StoreTableRow> storeTable;
 
@@ -30,12 +32,14 @@ public class AppData {
     private AppData() {
 
         storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
+                storeTableRow.employeeProperty(),
                 storeTableRow.allFeeProperty(),
                 storeTableRow.nonCashProperty(),
                 storeTableRow.cashProperty(),
                 //storeTableRow.expensesProperty(),
                 storeTableRow.getExpenses(),
-                storeTableRow.cashBalanceProperty()
+                storeTableRow.cashBalanceProperty(),
+                storeTableRow.isActiveProperty()
         });
         stores = FXCollections.observableArrayList(store -> new Observable[]{store.isActiveProperty(), store.getStoreTable(), store.nameProperty()});
         employees = FXCollections.observableArrayList(employee -> new Observable[]{employee.isActiveProperty(), employee.nameProperty()});
@@ -48,6 +52,7 @@ public class AppData {
                     if(change.wasUpdated() || change.wasRemoved()){
                         for(Employee employee : employees) {
                             employee.setSalaryBalance(0);
+                            employee.getWorkDays().clear();
                             for (Store store : stores) {
                                 for (StoreTableRow storeTableRow : store.getStoreTable()) {
                                     for(Expense expense : storeTableRow.getExpenses()){
@@ -152,10 +157,14 @@ public class AppData {
         fillStoreTable();
     }
 
+
+
     @XmlTransient
     public ObservableList<StoreTableRow> getStoreTable() {
         return storeTable;
     }
+
+
 
     public ObservableList<Store> getStores() {
         return stores;
@@ -166,12 +175,16 @@ public class AppData {
         this.stores = stores;
     }
 
+
+
     public ObservableList<Employee> getEmployees() { return employees; }
     @XmlElementWrapper(name = "employees")
     @XmlElement(name = "employee")
     public void setEmployees(ObservableList<Employee> employees) {
         this.employees = employees;
     }
+
+
 
     public ObservableList<ExpenseType> getExpenseTypes() {
         return expenseTypes;
@@ -182,6 +195,15 @@ public class AppData {
 
         this.expenseTypes = expenseTypes;
     }
+
+
+
+    @XmlTransient
+    public File getAppDataPath() {
+        return appDataPath;
+    }
+
+
 
     private boolean isExpenseTypesContains(String str){
 

@@ -79,9 +79,6 @@
       </TableView>
       <HBox layoutX="1058.0" layoutY="769.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#addRow" prefWidth="110.0" text="Добавить строку" />
-            <Button mnemonicParsing="false" onAction="#removeRow" prefWidth="110.0" text="Удалить строку" />
-            <Button mnemonicParsing="false" onAction="#clearRow" text="Очистить строку" />
             <Button mnemonicParsing="false" onAction="#handleOkButton" prefWidth="62.0" text="OK" />
             <Button mnemonicParsing="false" onAction="#handleCloseButton" prefWidth="62.0" text="Закрыть" />
          </children>
@@ -92,6 +89,18 @@
             <Insets />
          </opaqueInsets>
       </HBox>
-      <ComboBox fx:id="storeComboBox" layoutX="205.0" layoutY="760.0" prefHeight="35.0" prefWidth="150.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="55.0" />
+      <HBox alignment="BOTTOM_LEFT" layoutX="55.0" layoutY="750.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="55.0">
+         <children>
+            <ComboBox fx:id="storeComboBox" prefHeight="35.0" prefWidth="150.0" />
+            <Button mnemonicParsing="false" onAction="#addRow" prefWidth="110.0" text="Добавить строку">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></Button>
+            <Button mnemonicParsing="false" onAction="#removeLastRow" prefWidth="110.0" text="Удалить строку" />
+         </children>
+         <padding>
+            <Insets bottom="15.0" />
+         </padding>
+      </HBox>
    </children>
 </AnchorPane>

@@ -23,8 +23,8 @@ public class Store {
 
     public Store() {
 
-        //this("Неизвестный магазин", 1200, 200, 0.06);
         this.storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
+                storeTableRow.isActiveProperty(),
                 storeTableRow.employeeProperty(),
                 storeTableRow.allFeeProperty(),
                 storeTableRow.nonCashProperty(),

@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class ExpenseType {
 
-    //private String name;
     private StringProperty name;
     private BooleanProperty isActive;
 
@@ -18,21 +17,15 @@ public class ExpenseType {
     }
 
     public ExpenseType(String name) {
-        //this.name = name;
+
         this.name = new SimpleStringProperty(name);
         this.isActive = new SimpleBooleanProperty(true);
     }
 
-//    public String getName() {
-//        return name;
-//    }
     public String getName() {
         return name.getValue();
     }
 
-//    public void setName(String name) {
-//        this.name = name;
-//    }
     public void setName(String name) {
         this.name.setValue(name);
     }
@@ -40,6 +33,8 @@ public class ExpenseType {
     public StringProperty nameProperty(){
         return name;
     }
+
+
 
     @XmlElement(name = "isActive")
     public boolean getActive() {
@@ -53,6 +48,8 @@ public class ExpenseType {
     public void setActive(boolean isActive) {
         this.isActive.set(isActive);
     }
+
+
 
     @Override
     public String toString() {

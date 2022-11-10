@@ -14,11 +14,8 @@ import java.time.LocalDate;
 public class Employee {
 
     private StringProperty name;
-    // todo подумать, нужно ли хранить это или можно рассчитывать каждый раз (пока хочу рассчитывать после инициализации XML-документа)
     private ObservableMap<LocalDate, Store> workDays;
-
     private Integer salaryBalance;
-
     private BooleanProperty isActive;
 
     public Employee() {

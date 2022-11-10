@@ -23,6 +23,7 @@ public class Expense {
     private LocalDate date;
     private String comment;
     private BooleanProperty isCorrectProperty;
+    private String errorMessage;
 
     public Expense() {
         this(0, "");
@@ -37,6 +38,7 @@ public class Expense {
         this.store = new SimpleObjectProperty<>();
         this.purpose = new SimpleStringProperty(type);
         this.isCorrectProperty = new SimpleBooleanProperty(true);
+        this.errorMessage = "";
     }
 
     public Integer getAmount() {
@@ -127,15 +129,27 @@ public class Expense {
     }
 
 
-    public boolean isCorrect() {
+    public boolean getCorrect() {
         return isCorrectProperty.get();
     }
     public BooleanProperty isCorrectProperty() {
         return isCorrectProperty;
     }
-    public void setIsCorrect(boolean isCorrect) {
+    public void setCorrect(boolean isCorrect) {
         this.isCorrectProperty.set(isCorrect);
     }
+
+
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+
 
     @Override
     public String toString() {

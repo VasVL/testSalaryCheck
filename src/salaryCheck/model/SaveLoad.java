@@ -7,7 +7,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.prefs.Preferences;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class SaveLoad {
 
@@ -87,6 +91,15 @@ public abstract class SaveLoad {
                     .newInstance(AppData.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            File fileCopy = new File("AppData_Copy.xml");
+            File fileSecondCopy = new File("AppData_Copy_2.xml");
+            try {
+                Files.copy(fileCopy.toPath(), fileSecondCopy.toPath(), REPLACE_EXISTING);
+                Files.copy(file.toPath(), fileCopy.toPath(), REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             // Маршаллируем и сохраняем XML в файл.
             appData = AppData.getInstance();

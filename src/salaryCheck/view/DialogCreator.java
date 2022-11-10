@@ -13,6 +13,8 @@ import salaryCheck.model.Store;
 import salaryCheck.model.StoreTableRow;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class DialogCreator {
 
@@ -45,7 +47,8 @@ public class DialogCreator {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpensesEditDialog.fxml"));
         try {
 
-            Stage stage = createDialog(loader, "Внесение расходов за " + tableRow.getDate(), new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
+            Stage stage = createDialog(loader, "Внесение расходов за " + tableRow.getDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru"))),
+                    new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
             expensesEditController.setRow(tableRow);

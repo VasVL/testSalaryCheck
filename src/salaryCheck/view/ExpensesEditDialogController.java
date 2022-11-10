@@ -73,7 +73,7 @@ public class ExpensesEditDialogController implements Initializable {
                     if (columnIndex != null) {
                         if(columnIndex == AMOUNT_COLUMN) {
                             ((TextField) child).setText(expense.getAmount().toString());
-                            if(!expense.isCorrect()){
+                            if(!expense.getCorrect()){
                                 ((TextField) child).setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.RED));
                                 ((TextField) child).setTooltip(StandardStyles.getTooltip("Забрано больше, чем заработано"));
                             }
@@ -106,8 +106,7 @@ public class ExpensesEditDialogController implements Initializable {
     }
 
     private void addGridRow(boolean isEmpty){
-        // todo возможно лучше будет сделать так: добавить здесь прямо при создании changeListener'ы ко всем элементам,
-        //  которые будут перезаписывать определённые внутри класса глобальные переменные, типа списка расходов
+
         int rowsNumber = expensesGridPane.getRowCount();
         int column = 0;
 
@@ -183,6 +182,7 @@ public class ExpensesEditDialogController implements Initializable {
                     }).map(Map.Entry::getKey).toList()
             );
             dateChoiceBox.setItems(dateList);
+            dateChoiceBox.setValue(null);
         };
 
         storeChoiceBox.setOnAction( updateDateChoiceBox );
@@ -299,7 +299,6 @@ public class ExpensesEditDialogController implements Initializable {
         return amount > 0;
     }
 
-    // todo здесь вставить проверку на null
     @FXML
     private boolean handleApply(){
 
@@ -320,7 +319,6 @@ public class ExpensesEditDialogController implements Initializable {
                     int amount1 = Integer.parseInt(inputString);
                     if ( validateAmount(amount1) ) {
                         tempExpense.setAmount(amount1);
-                        // todo new
                         amountTextField = (TextField)child;
                         amount = Integer.parseInt(((TextField)child).getText());
                     } else {
@@ -335,7 +333,7 @@ public class ExpensesEditDialogController implements Initializable {
                         if(hBoxChild instanceof ChoiceBox<?>){
                             if(((ChoiceBox<?>)hBoxChild).getValue() instanceof ExpenseType) {
                                 tempExpense.setExpenseType(((ChoiceBox<ExpenseType>)hBoxChild).getValue());
-                                // todo new
+
                                 if(((ChoiceBox<ExpenseType>) hBoxChildren.get(0)).getValue().getName().equals("Зарплата")) {
 
                                     Employee employee = ((ChoiceBox<Employee>) hBoxChildren.get(1)).getValue();
@@ -347,11 +345,12 @@ public class ExpensesEditDialogController implements Initializable {
                                     if(paymentBalance - amount >= 0){
                                         amountTextField.setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.TRANSIENT));
                                         amountTextField.setTooltip(null);
-                                        tempExpense.setIsCorrect(true);
+                                        tempExpense.setCorrect(true);
                                     } else {
                                         amountTextField.setBackground(StandardStyles.getBackground(StandardStyles.StandardBackgrounds.RED));
-                                        amountTextField.setTooltip(StandardStyles.getTooltip("Забрано больше, чем заработано"));
-                                        tempExpense.setIsCorrect(false);
+                                        amountTextField.setTooltip(StandardStyles.getTooltip("Расход на зп больше, чем нужно"));
+                                        tempExpense.setCorrect(false);
+                                        tempExpense.setErrorMessage("Расход на зп больше, чем нужно");
                                     }
                                 }
                             } else

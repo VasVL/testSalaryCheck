@@ -6,17 +6,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import salaryCheck.model.AppData;
 import salaryCheck.view.OverviewController;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class MainApp extends Application {
 
     private static Stage mainPrimaryStage;
-
-    private static AppData appData;
 
     public MainApp() {
 
@@ -33,9 +33,6 @@ public class MainApp extends Application {
 
             // Даём контроллеру доступ к главному приложению.
             OverviewController controller = loader.getController();
-            // todo setAppData()
-            //appData = AppData.getInstance();
-            //controller.setMainApp(this);
 
             Scene scene = new Scene(root);
             mainPrimaryStage = primaryStage;
@@ -46,7 +43,7 @@ public class MainApp extends Application {
             mainPrimaryStage.show();
         }
         catch (IOException e) {
-            // todo
+
             System.out.println("Не могу загрузить fxml-файл");
             e.printStackTrace();
         }
@@ -58,8 +55,6 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
 
-        // todo
-        //appData = AppData.getInstance();
         File file = new File("AppData.xml");
         try {
             file.createNewFile();

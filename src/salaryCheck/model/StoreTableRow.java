@@ -16,6 +16,7 @@ import java.time.LocalDate;
  */
 public class StoreTableRow {
 
+    private BooleanProperty isActive;
     private ObjectProperty<LocalDate> date;
     private ObjectProperty<Employee> employee;
     private IntegerProperty allFee;
@@ -30,14 +31,18 @@ public class StoreTableRow {
     public StoreTableRow() {
         this(LocalDate.now(),
                 new Employee(""),
-                0, 0, 0, 0,
+                0,
+                0,
+                0,
+                0,
                 FXCollections.observableArrayList( expense -> new Observable[]{
                         expense.expenseTypeProperty(),
                         expense.employeeProperty(),
                         expense.storeProperty(),
                         expense.purposeProperty(),
                         expense.isCorrectProperty()
-                } )
+                } ),
+                true
         );
     }
 
@@ -57,14 +62,32 @@ public class StoreTableRow {
                          Integer nonCash,
                          Integer cash,
                          Integer cashBalance,
-                         ObservableList<Expense> expenses) {
-        this.date = new SimpleObjectProperty<>(date);
-        this.employee = new SimpleObjectProperty<>(employee);
-        this.allFee = new SimpleIntegerProperty(allFee);
-        this.nonCash = new SimpleIntegerProperty(nonCash);
-        this.cash = new SimpleIntegerProperty(cash);
-        this.cashBalance = new SimpleIntegerProperty(cashBalance);
-        this.expenses = FXCollections.observableArrayList(expenses);
+                         ObservableList<Expense> expenses,
+                         Boolean isActive ) {
+
+        this.date        = new SimpleObjectProperty<>( date );
+        this.employee    = new SimpleObjectProperty<>( employee );
+        this.allFee      = new SimpleIntegerProperty( allFee );
+        this.nonCash     = new SimpleIntegerProperty( nonCash );
+        this.cash        = new SimpleIntegerProperty( cash );
+        this.cashBalance = new SimpleIntegerProperty( cashBalance );
+        this.expenses    = FXCollections.observableArrayList( expenses );
+        this.isActive    = new SimpleBooleanProperty( isActive );
+    }
+
+
+
+
+    public boolean getActive() {
+        return isActive.get();
+    }
+
+    public BooleanProperty isActiveProperty() {
+        return isActive;
+    }
+    @XmlElement(name = "isActive")
+    public void setActive(boolean isActive) {
+        this.isActive.set(isActive);
     }
 
 
