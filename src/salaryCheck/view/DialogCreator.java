@@ -15,6 +15,7 @@ import salaryCheck.model.StoreTableRow;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DialogCreator {
 
@@ -48,7 +49,7 @@ public class DialogCreator {
         try {
 
             Stage stage = createDialog(loader, "Внесение расходов за " + tableRow.getDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru"))),
-                    new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
+                    new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/dollar-symbol.png"))));
             ExpensesEditDialogController expensesEditController = loader.getController();
             expensesEditController.setDialogStage(stage);
             expensesEditController.setRow(tableRow);
@@ -66,7 +67,7 @@ public class DialogCreator {
     public void showStoreEditDialog(Stage owner, Store editingStore){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("StoreEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Редактирование магазина", owner, new Image("salaryCheck\\sources\\images\\store.png"));
+            Stage stage = createDialog(loader, "Редактирование магазина", owner, new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/store.png"))));
 
             StoreEditDialogController storeEditController = loader.getController();
             storeEditController.setDialogStage(stage);
@@ -93,7 +94,7 @@ public class DialogCreator {
     public void showEmployeeEditDialog(Stage owner, Employee employee){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Добавление сотрудника", owner, new Image("salaryCheck\\sources\\images\\user.png"));
+            Stage stage = createDialog(loader, "Добавление сотрудника", owner, new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/user.png"))));
 
             EmployeeEditDialogController employeeEditController = loader.getController();
             employeeEditController.setDialogStage(stage);
@@ -119,7 +120,7 @@ public class DialogCreator {
     public void showExpenseTypeEditDialog(Stage owner, ExpenseType expenseType){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpenseTypeEditDialog.fxml"));
         try {
-            Stage stage = createDialog(loader, "Добавление статьи расходов", owner, new Image("salaryCheck\\sources\\images\\dollar-symbol.png"));
+            Stage stage = createDialog(loader, "Добавление статьи расходов", owner, new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/dollar-symbol.png"))));
 
             ExpenseTypeEditDialogController expenseTypeEditController = loader.getController();
             expenseTypeEditController.setDialogStage(stage);
@@ -145,7 +146,7 @@ public class DialogCreator {
     public void showListOverview(int startTab){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ListOverview.fxml"));
         try {
-            Stage stage = createDialog(loader, "Список штук", new Image("salaryCheck\\sources\\images\\list.png"));
+            Stage stage = createDialog(loader, "Список штук", new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/list.png"))));
 
             ListOverviewController listOverviewController = loader.getController();
             listOverviewController.setDialogStage(stage);
@@ -161,7 +162,7 @@ public class DialogCreator {
     public void showEmployeeOverview(Stage owner, Employee employee){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EmployeeDetailsOverview.fxml"));
         try {
-            Stage stage = createDialog(loader, "Остаток по зарплате", owner, new Image("salaryCheck\\sources\\images\\user.png"));
+            Stage stage = createDialog(loader, "Остаток по зарплате", owner, new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/user.png"))));
 
             EmployeeDetailsOverviewController employeeDetailsOverviewController = loader.getController();
             employeeDetailsOverviewController.setDialogStage(stage);

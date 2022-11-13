@@ -9,21 +9,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import salaryCheck.MainApp;
 import salaryCheck.model.*;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ExpensesEditDialogController implements Initializable {
 
@@ -232,14 +231,14 @@ public class ExpensesEditDialogController implements Initializable {
          *
          * */
 
-        expensesGridPane.add(new ImageView("salaryCheck\\sources\\images\\pencil.png"), column++, rowsNumber);
+        expensesGridPane.add(new ImageView(new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/pencil.png")))), column++, rowsNumber);
 
         /*
          * Строка состоит из : 4 - манус, нажатие на который удаляет строку
          *
          * */
 
-        ImageView minus = new ImageView("salaryCheck\\sources\\images\\minus.png");
+        ImageView minus = new ImageView(new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/minus.png"))));
         expensesGridPane.add(minus, column++, rowsNumber);
         minus.setOnMouseClicked(mouseEvent -> removeGridRow(rowsNumber));
     }

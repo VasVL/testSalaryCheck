@@ -85,7 +85,7 @@ public abstract class SaveLoad {
      *
      * @param file
      */
-    public static void saveAppDataToFile(File file) {
+    public static boolean saveAppDataToFile(File file) {
         try {
             JAXBContext context = JAXBContext
                     .newInstance(AppData.class);
@@ -95,6 +95,8 @@ public abstract class SaveLoad {
             File fileCopy = new File("AppData_Copy.xml");
             File fileSecondCopy = new File("AppData_Copy_2.xml");
             try {
+                fileCopy.createNewFile();
+                fileSecondCopy.createNewFile();
                 Files.copy(fileCopy.toPath(), fileSecondCopy.toPath(), REPLACE_EXISTING);
                 Files.copy(file.toPath(), fileCopy.toPath(), REPLACE_EXISTING);
             } catch (IOException e) {
@@ -106,16 +108,20 @@ public abstract class SaveLoad {
             m.marshal(appData, file);
 
             // Сохраняем путь к файлу в реестре.
-            setTableFilePath(file);
+            //setTableFilePath(file);
+            return true;
 
         } catch (Exception e) { // catches ANY exception
             e.printStackTrace();
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Одна ошибка");
             alert.setHeaderText("И ты ошибся");
-            alert.setContentText("Не получается сохранить данные в файл:\n" + file.getPath());
+            alert.setContentText("Не получается сохранить данные в файл:\n" + file.getPath() + "\n" + e.getMessage());
 
             alert.showAndWait();
+
+            return false;
         }
     }
 }

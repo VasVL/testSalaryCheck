@@ -13,14 +13,17 @@ import javafx.util.converter.IntegerStringConverter;
 import salaryCheck.MainApp;
 import salaryCheck.model.*;
 
-import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class OverviewController implements Initializable {
+
+    @FXML
+    private Label saveMessage;
 
     @FXML
     private ComboBox<Store> storeComboBox;
@@ -84,6 +87,7 @@ public class OverviewController implements Initializable {
      * Конструктор вызывается раньше метода initialize().
      */
     public OverviewController() {
+
         // Добавление в таблицу данные из наблюдаемого списка
         appData = AppData.getInstance();
         dialogCreator = new DialogCreator();
@@ -197,8 +201,17 @@ public class OverviewController implements Initializable {
         addEmployeeMenuItem.setOnAction(    event -> dialogCreator.showEmployeeEditDialog()    );
         addExpenseTypeMenuItem.setOnAction( event -> dialogCreator.showExpenseTypeEditDialog() );
 
-        saveMenuItem.setOnAction(  actionEvent -> SaveLoad.saveAppDataToFile( appData.getAppDataPath() ) );
-        closeMenuItem.setOnAction( actionEvent -> MainApp.getPrimaryStage().close() );
+        saveMenuItem.setOnAction(  actionEvent -> {
+            if( appData.wasDataChanged() && SaveLoad.saveAppDataToFile(appData.getAppDataPath()) ){
+                appData.setWasDataChanged(false);
+                saveMessage.setOpacity(1);
+            }
+        });
+        appData.getStores().addListener((ListChangeListener<Store>) change -> {
+            appData.setWasDataChanged(true);
+            saveMessage.setOpacity(0);
+        });
+        closeMenuItem.setOnAction( actionEvent -> closeApp() );
 
         // setOnAction добавил, потому что без него при начальном пустом списке магазинов selectStoreMenu отказывался обновляться
         setSelectStoreMenuItems();
@@ -509,15 +522,44 @@ public class OverviewController implements Initializable {
 //        }
 //    }
 
+    public void closeApp(){
+
+        if( appData.wasDataChanged() ) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Данные не сохранены");
+            alert.setHeaderText("Внесённые изменения не сохранены");
+            alert.setContentText("Сохранить изменения перед выходом?\n");
+
+            ButtonType buttonTypeOne = new ButtonType("Да");
+            ButtonType buttonTypeTwo = new ButtonType("Нет");
+            ButtonType buttonTypeCancel = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == buttonTypeOne) {
+                SaveLoad.saveAppDataToFile(appData.getAppDataPath());
+                MainApp.getPrimaryStage().close();
+            } else if (result.get() == buttonTypeTwo) {
+                MainApp.getPrimaryStage().close();
+            } else {
+                alert.close();
+            }
+        } else {
+            MainApp.getPrimaryStage().close();
+        }
+    }
+
     @FXML
     private void handleOkButton(){
 
-        SaveLoad.saveAppDataToFile(new File("AppData.xml"));
+        SaveLoad.saveAppDataToFile(appData.getAppDataPath());
         MainApp.getPrimaryStage().close();
     }
 
     @FXML
     private void handleCloseButton(){
-        MainApp.getPrimaryStage().close();
+        closeApp();
     }
 }

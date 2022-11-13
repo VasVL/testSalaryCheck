@@ -1,16 +1,18 @@
 package salaryCheck;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import salaryCheck.view.OverviewController;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.Objects;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -36,15 +38,22 @@ public class MainApp extends Application {
 
             Scene scene = new Scene(root);
             mainPrimaryStage = primaryStage;
-            Image icon = new Image("salaryCheck\\sources\\images\\frequency.png");
+            Image icon = new Image(Objects.requireNonNull(MainApp.class.getResourceAsStream("sources/images/frequency.png")));
             primaryStage.getIcons().add(icon);
             mainPrimaryStage.setTitle("Штуки-Дрюки");
             mainPrimaryStage.setScene(scene);
+            mainPrimaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent windowEvent) {
+                    windowEvent.consume();
+                    controller.closeApp();
+                }
+            });
+
             mainPrimaryStage.show();
         }
         catch (IOException e) {
 
-            System.out.println("Не могу загрузить fxml-файл");
             e.printStackTrace();
         }
     }

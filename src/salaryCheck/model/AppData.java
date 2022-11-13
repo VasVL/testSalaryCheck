@@ -13,13 +13,15 @@ import java.time.LocalDate;
 @XmlRootElement
 public class AppData {
 
+    private Boolean wasDataChanged;
+
     private static volatile AppData instance;
 
     private final File appDataPath = new File("AppData.xml"); // В main'е то же самое
 
     private Store currentStore;
 
-    private ObservableList<StoreTableRow> storeTable;
+    private final ObservableList<StoreTableRow> storeTable;
 
     /*
     * Следующие три листа: stores, employees, expenseTypes нужно сохранять в виде XML
@@ -30,6 +32,8 @@ public class AppData {
     private ObservableList<ExpenseType> expenseTypes;
 
     private AppData() {
+
+        wasDataChanged = false;
 
         storeTable = FXCollections.observableArrayList(storeTableRow -> new Observable[]{
                 storeTableRow.employeeProperty(),
@@ -155,6 +159,16 @@ public class AppData {
     public void setCurrentStore(Store currentStore) {
         this.currentStore = currentStore;
         fillStoreTable();
+    }
+
+
+
+    public Boolean wasDataChanged() {
+        return wasDataChanged;
+    }
+    @XmlTransient
+    public void setWasDataChanged(Boolean wasDataChanged) {
+        this.wasDataChanged = wasDataChanged;
     }
 
 
